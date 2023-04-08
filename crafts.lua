@@ -38,12 +38,12 @@ minetest.register_craft({
 -- vent
 minetest.register_craft({
     output = "ctg_airs:air_duct_vent 6",
-    recipe = {{a, t, a}, {t, s, t}, {a, t, a}}
+    recipe = {{a, t, a}, {r, r, r}, {a, t, a}}
 })
 
 minetest.register_craft({
     output = "ctg_airs:air_duct_vent 4",
-    recipe = {{d, "", d}, {"", s, ""}, {d, "", d}}
+    recipe = {{d, "", d}, {r, r, r}, {d, "", d}}
 })
 
 -- machine
