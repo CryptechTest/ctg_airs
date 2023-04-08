@@ -8,6 +8,9 @@ local m = "default:mese_crystal"
 local d = "ctg_airs:air_duct_S"
 local s = "default:steel_ingot"
 local c = "ctg_machines:carbon_dust"
+local b = "basic_materials:aluminum_bar"
+local r = "basic_materials:aluminum_strip"
+local i = "technic:machine_casing"
 
 local h = "ctg_airs:lv_air_handler"
 local u = "pipeworks:tube_1"
@@ -63,3 +66,9 @@ minetest.register_craft({
 --    output = "ctg_airs:nickel_block_embedded_tube 1",
 --    recipe = {{n, n, n}, {n, u, n}, {n, n, n}}
 -- })
+
+-- fan
+minetest.register_craft({
+    output = "ctg_airs:lv_air_fan",
+    recipe = {{t, r, t}, {r, b, r}, {a, i, a}}
+})

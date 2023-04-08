@@ -47,7 +47,7 @@ local function process_leaves(pos)
         end
     end
 
-    minetest.log("nature making atmos..")
+    -- minetest.log("nature making atmos..")
 end
 
 -- producing nodes in thing atmos
