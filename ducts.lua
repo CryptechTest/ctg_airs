@@ -12,7 +12,9 @@ local Tube = tubelib2.Tube:new({
     max_tube_length = 25,
     show_infotext = true,
     primary_node_names = {"ctg_airs:air_duct_S", "ctg_airs:air_duct_S2", "ctg_airs:air_duct_A", "ctg_airs:air_duct_A2"},
-    secondary_node_names = {"ctg_airs:air_duct_junc", "ctg_airs:air_duct_vent", "ctg_airs:lv_air_handler"},
+    secondary_node_names = {"ctg_airs:air_duct_junc", "ctg_airs:air_duct_vent", "ctg_airs:lv_air_handler",
+                            "ctg_airs:lv_air_handler_active", "ctg_airs:lv_air_handler_wait", "ctg_airs:lv_air_fan",
+                            "ctg_airs:lv_air_fan_active"},
     after_place_tube = function(pos, param2, tube_type, num_tubes)
         -- minetest.log("type: " .. tube_type .. " num: " .. num_tubes .. " param2:" .. param2)
         if num_tubes == 2 then

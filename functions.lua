@@ -72,9 +72,9 @@ end
 
 function ctg_airs.process_atmos(pos)
     local range = {
-        x = 3,
-        y = 3,
-        z = 3
+        x = 2,
+        y = 2,
+        z = 2
     }
     local pos1 = vector.subtract(pos, range)
     local pos2 = vector.add(pos, range)
@@ -87,13 +87,20 @@ function ctg_airs.process_atmos(pos)
     })
     local data = manip:get_data()
 
+    local max = math.random(1, 2)
+    local count = 0
     for z = pos1.z, pos2.z do
         for y = pos1.y, pos2.y do
             for x = pos1.x, pos2.x do
 
+                if (count >= max) then
+                    break
+                end
+
                 local index = area:index(x, y, z)
                 if data[index] == c_atmos_thick then
                     data[index] = c_atmos_thin
+                    count = count + 1
                 end
 
             end
@@ -425,7 +432,7 @@ function ctg_airs.get_duct_output(pos)
     local node = minetest.get_node(pos)
     local dir1, dir2, num_con = ctg_airs.Tube:decode_param2(pos, node.param2)
 
-    local dest_pos = ctg_airs.Tube:get_connected_node_pos(pos, 6)
+    local dest_pos = ctg_airs.Tube:get_connected_node_pos(pos, dir2)
 
     -- minetest.log(tostring(dir1) .. " " .. tostring(dir2) .. " " .. tostring(num_con))
 

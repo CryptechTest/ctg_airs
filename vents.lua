@@ -23,19 +23,6 @@ minetest.register_node("ctg_airs:air_duct_vent", {
 
     after_dig_node = function(pos, oldnode, oldmetadata, digger)
         ctg_airs.Tube:after_dig_node(pos)
-    end,
-
-    on_push_air = function(pos, dir)
-        local tube_dir = minetest.get_meta(pos):get_int("tube_dir")
-        minetest.log(tostring(tube_dir))
-        if dir == tubelib2.Turn180Deg[tube_dir] then
-            local s = minetest.get_meta(pos):get_string("peer_pos")
-            if s and s ~= "" then
-                -- push_item(S2P(s))
-                minetest.log(s)
-                return true
-            end
-        end
     end
 
     -- on_place = minetest.rotate_node,

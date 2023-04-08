@@ -51,6 +51,21 @@ function update_formspec2(data, running, enabled, size, percent)
                        ":gui_furnace_arrow_fg.png^[transformR270]" .. "listring[current_name;dst]" ..
                        "listring[current_player;main]" .. "listring[current_name;src]" ..
                        "listring[current_player;main]" .. "button[3,3;4,1;toggle;" .. btnName .. "]"
+    elseif typename == 'air_fan' then
+        local btnName = "State: "
+        if enabled then
+            btnName = btnName .. "<Enabled>"
+        else
+            btnName = btnName .. "<Disabled>"
+        end
+
+        local image = "ctg_fan_icon.png"
+        if (running) then
+            image = "ctg_fan_on_icon.png"
+        end
+        formspec = "size[8,9;]" .. "list[current_player;main;0,5;8,4;]" .. "label[0,0;" .. machine_desc:format(tier) ..
+                       "]" .. "image[4,1;1,1;" .. image .. "]" .. "listring[current_player;main]" ..
+                       "listring[current_player;main]" .. "button[3,3;4,1;toggle;" .. btnName .. "]"
     end
 
     if data.upgrade then
@@ -134,7 +149,8 @@ function ctg_airs.register_machine(data)
         cracky = 2,
         technic_machine = 1,
         ["technic_" .. ltier] = 1,
-        ctg_machine = 1
+        ctg_machine = 1,
+        metal = 1
     }
     if data.tube then
         groups.tubedevice = 1
