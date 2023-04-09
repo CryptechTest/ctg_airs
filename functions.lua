@@ -368,7 +368,7 @@ function ctg_airs.process_junc2(junc_pos, dir, networks, power)
                     -- minetest.log("found connected vent")
                 elseif dest_node.name == "ctg_airs:air_duct_junc" then
                     networks[dest_pos] = i
-                    power = ctg_airs.process_junc2(dest_pos, dir2, networks, power) - 2
+                    power = ctg_airs.process_junc2(dest_pos, i, networks, power) - 2
                     -- minetest.log("found connected junc")
                 elseif (dest_node and dest_node.name == "vacuum:vacuum") then
                     networks[dest_pos] = i
