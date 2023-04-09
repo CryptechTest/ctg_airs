@@ -207,7 +207,7 @@ function ctg_airs.process_leak(pos, power)
     if ((count > 0 or math.random(0, 2) == 0)) then
         minetest.sound_play("air_vent_short", {
             pos = pos,
-            gain = 0.21,
+            gain = 0.18,
             pitch = 1.0
         })
     end
@@ -357,7 +357,7 @@ function ctg_airs.process_vent2(pos, power, cost)
     if ((count > 0 or math.random(0, 2) == 0) and power > -5) then
         minetest.sound_play("air_vent_short", {
             pos = pos,
-            gain = 0.04,
+            gain = 0.02,
             pitch = 0.6
         })
     end
