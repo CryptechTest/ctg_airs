@@ -38,6 +38,27 @@ function ctg_airs.register_air_fan_machine(data)
     ctg_airs.register_machine_fan(data)
 end
 
+function ctg_airs.register_air_handler_machine_admin(data)
+    data.tube = 1
+    data.connect_sides = {
+        left = 1,
+        right = 1,
+        back = 1
+    }
+    data.machine_name = "air_handler_gen"
+    -- data.can_insert = true
+    data.typename = "air_handler_admin"
+    data.machine_desc = S("%s Air Admin Machine")
+    ctg_airs.register_machine(data)
+end
+
+ctg_airs.register_air_handler_machine_admin({
+    tier = "LV",
+    demand = {0},
+    speed = 1,
+    power = 100
+})
+
 ctg_airs.register_air_handler_machine({
     tier = "LV",
     demand = {1000},

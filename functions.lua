@@ -25,7 +25,7 @@ local is_duct_vent = function(pos)
     return false
 end
 
-function spawn_particle(pos, dir_x, dir_z, acl_x, acl_z)
+function spawn_particle(pos, dir_x, dir_y, dir_z, acl_x, acl_y, acl_z)
     local texture = "ctg_air_vent_vapor.png"
     if (math.random() > 0.5) then
         texture = "ctg_air_vent_vapor.png^[transformR90]"
@@ -46,17 +46,18 @@ function spawn_particle(pos, dir_x, dir_z, acl_x, acl_z)
     for i = 1, 2 do
         if math.random() >= 0.01 then
             local rx = dir_x * prt.vel * -math.random(0.3 * 100, 0.7 * 100) / 100
+            local ry = dir_y * prt.vel * -math.random(0.3 * 100, 0.6 * 100) / 100
             local rz = dir_z * prt.vel * -math.random(0.3 * 100, 0.7 * 100) / 100
             minetest.add_particle({
                 pos = pos,
                 velocity = vector.add(v, {
                     x = rx,
-                    y = 0.01,
+                    y = ry,
                     z = rz
                 }),
                 acceleration = {
                     x = acl_x,
-                    y = math.random(-0.1, 0),
+                    y = acl_y + math.random(-0.08, 0),
                     z = acl_z
                 },
                 expirationtime = ((math.random() / 5) + 0.3) * prt.time,
@@ -130,27 +131,34 @@ function ctg_airs.process_leak(pos, power)
     local param2 = node.param2
     local dir_x = 0.0001
     local dir_z = 0.0001
+    local dir_y = 0.0001
     if param2 == 1 then -- west
         dir_x = 1
     elseif param2 == 2 then -- north?
         dir_z = -1
     elseif param2 == 3 then -- east
         dir_x = -1
-    elseif param2 == 0 then -- south
+    elseif param2 == 4 then -- south
         dir_z = 1
+    --elseif param2 == 1 then -- up
+        --dir_y = -0.25
+    --elseif param2 == 5 then -- down
+        --dir_y = 0.25
     else
         dir_x = math.random(-0.5, 0.5)
+        dir_y = math.random(-0.5, 0.5)
         dir_z = math.random(-0.5, 0.5)
     end
 
     local acl_x = 0.28 * (dir_x)
+    local acl_y = 0.05 * (dir_y)
     local acl_z = 0.28 * (dir_z)
 
-    spawn_particle(pos, dir_x, dir_z, acl_x, acl_z)
+    spawn_particle(pos, dir_x, dir_y, dir_z, acl_x, acl_y, acl_z)
 
     for i = 1, 5 do
         minetest.after(i, function()
-            spawn_particle(pos, dir_x, dir_z, acl_x, acl_z)
+            spawn_particle(pos, dir_x, dir_y, dir_z, acl_x, acl_y, acl_z)
         end)
     end
 
@@ -228,6 +236,7 @@ function ctg_airs.process_vent2(pos, power, cost)
     local param2 = node.param2
     local dir_x = 0.0001
     local dir_z = 0.0001
+    local dir_y = 0.0001
     if param2 == 1 then -- west
         dir_x = 1
     elseif param2 == 2 then -- north?
@@ -236,16 +245,23 @@ function ctg_airs.process_vent2(pos, power, cost)
         dir_x = -1
     elseif param2 == 0 then -- south
         dir_z = 1
+    elseif param2 == 8 or param2 == 15 or param2 == 6 then
+        -- down
+        dir_y = 1
+    elseif param2 == 10 or param2 == 13 or param2 == 4 then
+        -- up
+        dir_y = -1
     end
 
     local acl_x = 0.2 * (dir_x)
+    local acl_y = 0.2 * (dir_y)
     local acl_z = 0.2 * (dir_z)
 
-    spawn_particle(pos, dir_x, dir_z, acl_x, acl_z)
+    spawn_particle(pos, dir_x, dir_y, dir_z, acl_x, acl_y, acl_z)
 
     for i = 1, 5 do
         minetest.after(i, function()
-            spawn_particle(pos, dir_x, dir_z, acl_x, acl_z)
+            spawn_particle(pos, dir_x, dir_y, dir_z, acl_x, acl_y, acl_z)
         end)
     end
 

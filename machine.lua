@@ -31,7 +31,7 @@ function update_formspec2(data, running, enabled, size, percent)
     local tier = data.tier
     local ltier = string.lower(tier)
     local formspec = nil
-    if typename == 'air_handler' then
+    if typename == 'air_handler' or typename == 'air_handler_admin' then
         local btnName = "State: "
         if enabled then
             btnName = btnName .. "<Enabled>"
@@ -108,12 +108,15 @@ function get_bottle(typename, items)
                     name = "vessels:steel_bottle",
                     count = c
                 })
-                run_length = 6 + c
+                run_length = 10 + c
                 c = c + 1
             elseif stack:get_name() == 'vessels:steel_bottle' then
                 -- skip over empty bottle..
             end
         end
+    end
+    if typename == "air_handler_admin" then
+        run_length = 5
     end
     if (run_length > 0) then
         return {
@@ -220,8 +223,6 @@ function ctg_airs.register_machine(data)
                         z = pos.z
                     })
                     if node_above.name == 'vacuum:atmos_thick' then
--- ctg_airs.play_hiss(pos)
-
                         ctg_airs.process_air(pos)
                         break
                     end
@@ -259,7 +260,7 @@ function ctg_airs.register_machine(data)
                 return
             end
 
-            if typename == "air_handler" then
+            if typename == "air_handler" or typename == "air_handler_admin" then
                 local power = air_power
                 local valid, dest_pos, dir = ctg_airs.get_duct_output(pos)
                 -- minetest.log(tostring(valid))
@@ -293,7 +294,7 @@ function ctg_airs.register_machine(data)
                 end
             end
 
-            local item_percent = (math.floor(meta:get_int("src_time") / round(result.time * 100) * 100))
+            local item_percent = (math.floor(meta:get_int("src_time") / round(result.time * 200) * 100))
             local formspec = update_formspec2(data, true, enabled, input_size, item_percent)
             meta:set_string("formspec", formspec .. form_buttons)
             meta:set_int(tier .. "_EU_demand", machine_demand[EU_upgrade + 1])
@@ -303,8 +304,8 @@ function ctg_airs.register_machine(data)
                 technic.swap_node(pos, machine_node .. "_wait")
             end
             meta:set_string("infotext", S("%s Active"):format(machine_desc_tier))
-            if meta:get_int("src_time") < round(result.time * 100) then
-                if not powered then
+            if meta:get_int("src_time") < round(result.time * 200) then
+                if not powered and typename ~= "air_handler_admin" then
                     technic.swap_node(pos, machine_node)
                     meta:set_string("infotext", S("%s Unpowered"):format(machine_desc_tier))
                 end
@@ -312,35 +313,35 @@ function ctg_airs.register_machine(data)
             end
             -- technic.swap_node(pos, machine_node.."_wait")
             local output = result.output
-            if type(output) ~= "table" then
-                output = {output}
-            end
-            local output_stacks = {}
-            for _, o in ipairs(output) do
-                table.insert(output_stacks, ItemStack(o))
-            end
-            local room_for_output = true
-            inv:set_size("dst_tmp", inv:get_size("dst"))
-            inv:set_list("dst_tmp", inv:get_list("dst"))
-            for _, o in ipairs(output_stacks) do
-                if not inv:room_for_item("dst_tmp", o) then
-                    room_for_output = false
-                    break
+            if output ~= nil then
+                if type(output) ~= "table" then
+                    output = {output}
                 end
-                inv:add_item("dst_tmp", o)
+                local output_stacks = {}
+                for _, o in ipairs(output) do
+                    table.insert(output_stacks, ItemStack(o))
+                end
+                local room_for_output = true
+                inv:set_size("dst_tmp", inv:get_size("dst"))
+                inv:set_list("dst_tmp", inv:get_list("dst"))
+                for _, o in ipairs(output_stacks) do
+                    if not inv:room_for_item("dst_tmp", o) then
+                        room_for_output = false
+                        break
+                    end
+                    inv:add_item("dst_tmp", o)
+                end
+                if not room_for_output then
+                    technic.swap_node(pos, machine_node)
+                    meta:set_string("infotext", S("%s Idle - Output full"):format(machine_desc_tier))
+                    meta:set_int(tier .. "_EU_demand", 0)
+                    meta:set_int("src_time", round(result.time * 200))
+                    return
+                end
             end
-            if not room_for_output then
-                technic.swap_node(pos, machine_node)
-                meta:set_string("infotext", S("%s Idle - Output full"):format(machine_desc_tier))
-                meta:set_int(tier .. "_EU_demand", 0)
-                meta:set_int("src_time", round(result.time * 100))
-                return
-            end
-            meta:set_int("src_time", meta:get_int("src_time") - round(result.time * 100))
+            meta:set_int("src_time", meta:get_int("src_time") - round(result.time * 200))
             inv:set_list("src", result.new_input)
-inv:set_list("dst", inv:get_list("dst_tmp"))
-
-
+            inv:set_list("dst", inv:get_list("dst_tmp"))
 
         end
     end
