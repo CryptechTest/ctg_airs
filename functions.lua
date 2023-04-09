@@ -441,7 +441,7 @@ function ctg_airs.get_duct_output(pos)
     local node = minetest.get_node(pos)
     local dir1, dir2, num_con = ctg_airs.Tube:decode_param2(pos, node.param2)
 
-    local dest_pos = ctg_airs.Tube:get_connected_node_pos(pos, dir2)
+    local dest_pos = ctg_airs.Tube:get_connected_node_pos(pos, 6)
 
     -- minetest.log(tostring(dir1) .. " " .. tostring(dir2) .. " " .. tostring(num_con))
 
