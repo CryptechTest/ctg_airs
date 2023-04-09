@@ -16,6 +16,7 @@ minetest.register_node("ctg_airs:air_duct_vent", {
     is_ground_content = false,
 
     after_place_node = function(pos, placer, itemstack, pointed_thing)
+        minetest.get_meta(pos):set_int("active", 0)
         minetest.get_meta(pos):set_string("infotext", S("Vent"))
         ctg_airs.Tube:after_place_node(pos)
         return false
@@ -27,3 +28,8 @@ minetest.register_node("ctg_airs:air_duct_vent", {
 
     -- on_place = minetest.rotate_node,
 })
+
+-- check if enabled
+ctg_airs.vent_active = function(meta)
+    return meta:get_int("active") == 1
+end

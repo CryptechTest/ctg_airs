@@ -71,44 +71,50 @@ function spawn_particle(pos, dir_x, dir_z, acl_x, acl_z)
 end
 
 function ctg_airs.process_atmos(pos)
-    local range = {
-        x = 2,
-        y = 2,
-        z = 2
-    }
-    local pos1 = vector.subtract(pos, range)
-    local pos2 = vector.add(pos, range)
+    for i = 1, 2 do
+        local range = {
+            x = i,
+            y = i,
+            z = i
+        }
+        local pos1 = vector.subtract(pos, range)
+        local pos2 = vector.add(pos, range)
 
-    local manip = minetest.get_voxel_manip()
-    local e1, e2 = manip:read_from_map(pos1, pos2)
-    local area = VoxelArea:new({
-        MinEdge = e1,
-        MaxEdge = e2
-    })
-    local data = manip:get_data()
+        local manip = minetest.get_voxel_manip()
+        local e1, e2 = manip:read_from_map(pos1, pos2)
+        local area = VoxelArea:new({
+            MinEdge = e1,
+            MaxEdge = e2
+        })
+        local data = manip:get_data()
 
-    local max = math.random(1, 2)
-    local count = 0
-    for z = pos1.z, pos2.z do
-        for y = pos1.y, pos2.y do
-            for x = pos1.x, pos2.x do
+        local max = 1
+        local count = 0
+        for z = pos1.z, pos2.z do
+            for y = pos1.y, pos2.y do
+                for x = pos1.x, pos2.x do
 
-                if (count >= max) then
-                    break
+                    if (count >= max) then
+                        break
+                    end
+
+                    local index = area:index(x, y, z)
+                    if data[index] == c_atmos_thick then
+                        data[index] = c_atmos_thin
+                        count = count + 1
+                    end
+
                 end
-
-                local index = area:index(x, y, z)
-                if data[index] == c_atmos_thick then
-                    data[index] = c_atmos_thin
-                    count = count + 1
-                end
-
             end
         end
-    end
 
-    manip:set_data(data)
-    manip:write_to_map()
+        manip:set_data(data)
+        manip:write_to_map()
+
+        if (count > 0) then
+            break
+        end
+    end
 end
 
 function ctg_airs.process_leak(pos, power)
@@ -130,7 +136,7 @@ function ctg_airs.process_leak(pos, power)
         dir_z = -1
     elseif param2 == 3 then -- east
         dir_x = -1
-    elseif param2 == 4 then -- south
+    elseif param2 == 0 then -- south
         dir_z = 1
     else
         dir_x = math.random(-0.5, 0.5)
@@ -212,8 +218,11 @@ function ctg_airs.process_vent2(pos, power, cost)
     end
 
     if power <= 0 then
+        minetest.get_meta(pos):set_int("active", 0)
         return power
     end
+
+    minetest.get_meta(pos):set_int("active", 1)
 
     local node = minetest.get_node(pos)
     local param2 = node.param2
@@ -225,7 +234,7 @@ function ctg_airs.process_vent2(pos, power, cost)
         dir_z = -1
     elseif param2 == 3 then -- east
         dir_x = -1
-    elseif param2 == 4 then -- south
+    elseif param2 == 0 then -- south
         dir_z = 1
     end
 
@@ -458,41 +467,6 @@ function ctg_airs.get_duct_output(pos)
     end
 end
 
-local traverse_network = function(pos)
-    local positions = {{
-        x = pos.x + 1,
-        y = pos.y,
-        z = pos.z
-    }, {
-        x = pos.x - 1,
-        y = pos.y,
-        z = pos.z
-    }, {
-        x = pos.x,
-        y = pos.y + 1,
-        z = pos.z
-    }, {
-        x = pos.x,
-        y = pos.y - 1,
-        z = pos.z
-    }, {
-        x = pos.x,
-        y = pos.y,
-        z = pos.z + 1
-    }, {
-        x = pos.x,
-        y = pos.y,
-        z = pos.z - 1
-    }}
-    local nodes = {}
-    for i, cur_pos in pairs(positions) do
-        local n = check_node_tube(cur_pos)
-        if n ~= nil then
-            table.insert(nodes, cur_pos)
-        end
-    end
-end
-
 ctg_airs.find_connected = function(pos)
     local positions = {{
         x = pos.x + 1,
@@ -528,3 +502,28 @@ ctg_airs.find_connected = function(pos)
     end
     return nodes
 end
+
+-- returns true if the position is near active vent
+function ctg_airs.near_active_vent(pos, range)
+    local pos1 = vector.subtract(pos, {
+        x = range,
+        y = range,
+        z = range
+    })
+    local pos2 = vector.add(pos, {
+        x = range,
+        y = range,
+        z = range
+    })
+
+    local nodes = minetest.find_nodes_in_area(pos1, pos2, {"ctg_airs:air_duct_vent"})
+    for _, node in ipairs(nodes) do
+        local meta = minetest.get_meta(node)
+        if ctg_airs.vent_active(meta) then
+            return true
+        end
+    end
+
+    return false
+end
+
