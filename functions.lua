@@ -392,45 +392,6 @@ function ctg_airs.process_junc2(junc_pos, dir, networks, power)
     return power
 end
 
-function ctg_airs.play_hiss(pos)
-    minetest.sound_play("vacuum_hiss", {
-        pos = pos,
-        gain = 0.5
-    })
-    minetest.add_particlespawner({
-        amount = 10,
-        time = 3,
-        minpos = vector.subtract(pos, 0.95),
-        maxpos = vector.add(pos, 0.95),
-        minvel = {
-            x = -1.2,
-            y = -1.4,
-            z = -1.2
-        },
-        maxvel = {
-            x = 1.2,
-            y = 0.2,
-            z = 1.2
-        },
-        minacc = {
-            x = 0,
-            y = 0,
-            z = 0
-        },
-        maxacc = {
-            x = 0,
-            y = -0.1,
-            z = 0
-        },
-        minexptime = 0.7,
-        maxexptime = 1,
-        minsize = 0.6,
-        maxsize = 1.4,
-        vertical = false,
-        texture = "bubble.png"
-    })
-end
-
 function ctg_airs.get_duct_output(pos)
     pos = {
         x = pos.x,

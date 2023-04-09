@@ -220,7 +220,8 @@ function ctg_airs.register_machine(data)
                         z = pos.z
                     })
                     if node_above.name == 'vacuum:atmos_thick' then
-                        ctg_airs.play_hiss(pos)
+-- ctg_airs.play_hiss(pos)
+
                         ctg_airs.process_air(pos)
                         break
                     end
@@ -337,11 +338,10 @@ function ctg_airs.register_machine(data)
             end
             meta:set_int("src_time", meta:get_int("src_time") - round(result.time * 100))
             inv:set_list("src", result.new_input)
-            inv:set_list("dst", inv:get_list("dst_tmp"))
+inv:set_list("dst", inv:get_list("dst_tmp"))
 
-            if typename == 'bottle' and math.random(1, 5) > 3 then
-                ctg_airs.play_hiss(pos)
-            end
+
+
         end
     end
 
