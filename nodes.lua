@@ -1,5 +1,9 @@
 local S = minetest.get_translator(minetest.get_current_modname())
 
+local straight = function(pos, node, velocity, stack)
+    return {velocity}
+end
+
 if (minetest.get_modpath("ctg_world")) then
 
     local alumin_tex = "ctg_aluminum_block_top.png"
