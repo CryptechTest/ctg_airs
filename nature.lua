@@ -65,3 +65,19 @@ minetest.register_abm({
         process_leaves(pos)
     end)
 })
+
+-- producing nodes in thing atmos
+minetest.register_abm({
+    label = "space vacuum sublimate",
+    nodenames = {"vacuum:atmos_thin"},
+    neighbors = {"group:leaves"},
+    interval = 2,
+    chance = 2,
+    min_y = vacuum.space_height,
+    action = vacuum.throttle(100, function(pos)
+        if not vacuum.is_pos_in_space(pos) then
+            return
+        end
+        process_leaves(pos)
+    end)
+})
