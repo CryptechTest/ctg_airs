@@ -108,7 +108,7 @@ function get_bottle(typename, items)
                     name = "vessels:steel_bottle",
                     count = c
                 })
-                run_length = 10 + c
+                run_length = 15 + c
                 c = c + 1
             elseif stack:get_name() == 'vessels:steel_bottle' then
                 -- skip over empty bottle..
@@ -116,7 +116,7 @@ function get_bottle(typename, items)
         end
     end
     if typename == "air_handler_admin" then
-        run_length = 5
+        run_length = 10
     end
     if (run_length > 0) then
         return {

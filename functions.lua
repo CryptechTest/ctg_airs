@@ -269,7 +269,7 @@ local function process_vent2(pos, power, cost)
     end
 
     if string.match(node.name, "duct_vent") then
-        if not string.match(node.name, "_dirty") and math.random(0, 10000) == 0 then
+        if not string.match(node.name, "_dirty") and math.random(0, 100000) == 0 then
             minetest.set_node(pos, {
                 name = node.name .. "_dirty", param2 = node.param2
             })
