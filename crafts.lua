@@ -46,6 +46,31 @@ minetest.register_craft({
     recipe = {{d, "", d}, {r, r, r}, {d, "", d}}
 })
 
+-- vent clean
+minetest.register_craft({
+    type = "shapeless",
+    output = "ctg_airs:air_duct_vent 1",
+    recipe = {"ctg_airs:air_duct_vent_dirty", "ctg_world:nickel_dust"},
+})
+
+-- vent lite
+minetest.register_craft({
+    output = "ctg_airs:air_duct_vent_lite 6",
+    recipe = {{a, t, a}, {r, "", r}, {a, t, a}}
+})
+
+minetest.register_craft({
+    output = "ctg_airs:air_duct_vent_lite 4",
+    recipe = {{d, "", d}, {r, "", r}, {d, "", d}}
+})
+
+-- vent lite clean
+minetest.register_craft({
+    type = "shapeless",
+    output = "ctg_airs:air_duct_vent_lite 1",
+    recipe = {"ctg_airs:air_duct_vent_lite_dirty", "ctg_world:nickel_dust"},
+})
+
 -- machine
 minetest.register_craft({
     output = "ctg_airs:lv_air_handler 1",

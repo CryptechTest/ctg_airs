@@ -25,7 +25,7 @@ local is_duct_vent = function(pos)
     return false
 end
 
-function spawn_particle(pos, dir_x, dir_y, dir_z, acl_x, acl_y, acl_z)
+function spawn_particle(pos, dir_x, dir_y, dir_z, acl_x, acl_y, acl_z, lvl)
     local texture = "ctg_air_vent_vapor.png"
     if (math.random() > 0.5) then
         texture = "ctg_air_vent_vapor.png^[transformR90]"
@@ -34,7 +34,7 @@ function spawn_particle(pos, dir_x, dir_y, dir_z, acl_x, acl_y, acl_z)
         texture = texture,
         vel = 2,
         time = 6,
-        size = 4,
+        size = 3 + (lvl or 1),
         glow = 3,
         cols = true
     }
@@ -140,10 +140,10 @@ function ctg_airs.process_leak(pos, power)
         dir_x = -1
     elseif param2 == 4 then -- south
         dir_z = 1
-    --elseif param2 == 1 then -- up
-        --dir_y = -0.25
-    --elseif param2 == 5 then -- down
-        --dir_y = 0.25
+        -- elseif param2 == 1 then -- up
+        -- dir_y = -0.25
+        -- elseif param2 == 5 then -- down
+        -- dir_y = 0.25
     else
         dir_x = math.random(-0.5, 0.5)
         dir_y = math.random(-0.5, 0.5)
@@ -154,11 +154,11 @@ function ctg_airs.process_leak(pos, power)
     local acl_y = 0.05 * (dir_y)
     local acl_z = 0.28 * (dir_z)
 
-    spawn_particle(pos, dir_x, dir_y, dir_z, acl_x, acl_y, acl_z)
+    spawn_particle(pos, dir_x, dir_y, dir_z, acl_x, acl_y, acl_z, 1.5)
 
     for i = 1, 5 do
         minetest.after(i, function()
-            spawn_particle(pos, dir_x, dir_y, dir_z, acl_x, acl_y, acl_z)
+            spawn_particle(pos, dir_x, dir_y, dir_z, acl_x, acl_y, acl_z, 1)
         end)
     end
 
@@ -216,15 +216,7 @@ function ctg_airs.process_leak(pos, power)
     return power
 end
 
-function ctg_airs.process_vent(pos, power)
-    return ctg_airs.process_vent2(pos, power, 10)
-end
-
-function ctg_airs.process_vent2(pos, power, cost)
-    if not pos then
-        return power
-    end
-
+local function process_vent2(pos, power, cost)
     if power <= 0 then
         minetest.get_meta(pos):set_int("active", 0)
         return power
@@ -257,12 +249,34 @@ function ctg_airs.process_vent2(pos, power, cost)
     local acl_y = 0.2 * (dir_y)
     local acl_z = 0.2 * (dir_z)
 
-    spawn_particle(pos, dir_x, dir_y, dir_z, acl_x, acl_y, acl_z)
+    local lvl = 0
+    if (cost > 8) then
+        lvl = 1
+    end
 
-    for i = 1, 5 do
+    if cost > 8 or math.random(0, 1) == 0 then
+        spawn_particle(pos, dir_x, dir_y, dir_z, acl_x, acl_y, acl_z, lvl)
+    end
+
+    for i = 1, 5 + lvl + math.random(0, 1) do
         minetest.after(i, function()
-            spawn_particle(pos, dir_x, dir_y, dir_z, acl_x, acl_y, acl_z)
+            if cost > 8 or math.random(0, 1) == 0 then
+                spawn_particle(pos, dir_x, dir_y, dir_z, acl_x, acl_y, acl_z, lvl)
+            end
         end)
+    end
+
+    if string.match(node.name, "duct_vent") then
+        if not string.match(node.name, "_dirty") and math.random(0, 10000) == 0 then
+            minetest.set_node(pos, {
+                name = node.name .. "_dirty", param2 = node.param2
+            })
+            if string.match(node.name, "_lite") then
+                minetest.get_meta(pos):set_string("infotext", S("Dirty Lite Vent"))
+            else
+                minetest.get_meta(pos):set_string("infotext", S("Dirty Vent"))
+            end
+        end
     end
 
     local range = {
@@ -305,10 +319,25 @@ function ctg_airs.process_vent2(pos, power, cost)
     manip:set_data(data)
     manip:write_to_map()
 
-    power = power - cost
+    local dirty = minetest.get_item_group(node.name, "vent_dirty") or 0
+
+    power = power - (cost + dirty)
+
+    local r = 4
+    local m = 0
+    if cost > 11 then
+        r = 7
+        m = 5
+    elseif cost > 8 then
+        r = 6
+        m = 3
+    elseif cost > 5 then
+        r = 5
+        m = 1
+    end
 
     if (count < 3) then
-        for j = 1, 6 do
+        for j = 1, r do
             local sz = j
             local pos1 = vector.subtract(pos, {
                 x = sz,
@@ -348,25 +377,34 @@ function ctg_airs.process_vent2(pos, power, cost)
                 end
             end
 
-            if count > 12 and j > 1 then
+            if count > 12 + m and j > 1 then
                 break
             end
         end
     end
 
-    if ((count > 0 and math.random(0, 1) == 0) and power > -5) then
+    if ((count > 0 and math.random(0, 2) == 0) and power > -5) then
         local r = math.random(0.2, 1)
         minetest.after(r, function()
             minetest.sound_play("air_vent_short", {
                 pos = pos,
                 gain = 0.01,
-                pitch = 0.6 + math.random(-0.001,0.001)
+                pitch = 0.6 + math.random(-0.001, 0.001)
             })
         end)
     end
 
     -- minetest.log("making atmos..")
     return power
+end
+
+function ctg_airs.process_vent(pos, power)
+    if not pos then
+        return power
+    end
+    local node = minetest.get_node(pos)
+    local cost = minetest.get_item_group(node.name, "vent") or 10
+    return process_vent2(pos, power, cost)
 end
 
 function ctg_airs.process_junc(junc_pos, dir, power)
@@ -381,7 +419,9 @@ function ctg_airs.process_junc2(junc_pos, dir, networks, power)
             local dest_pos = ctg_airs.Tube:get_connected_node_pos(junc_pos, i)
             if dest_pos ~= nil and dest_pos ~= junc_pos and networks[dest_pos] == nil then
                 local dest_node = minetest.get_node(dest_pos)
-                if dest_node.name == "ctg_airs:air_duct_vent" then
+                if dest_node.name == "ctg_airs:air_duct_vent" or dest_node.name == "ctg_airs:air_duct_vent_dirty" or
+                    dest_node.name == "ctg_airs:air_duct_vent_lite" or dest_node.name ==
+                    "ctg_airs:air_duct_vent_lite_dirty" then
                     networks[dest_pos] = i
                     power = ctg_airs.process_vent(dest_pos, power)
                     -- minetest.log("found connected vent")
@@ -438,7 +478,9 @@ function ctg_airs.get_duct_output(pos)
             return 3, dest_pos, dest_dir2
         elseif dest_node.name == "vacuum:vacuum" then
             return 5, dest_pos, dest_dir2
-        elseif dest_node.name == "ctg_airs:air_duct_vent" then
+        elseif dest_node.name == "ctg_airs:air_duct_vent" or dest_node.name == "ctg_airs:air_duct_vent_dirty" then
+            return 1, dest_pos, dest_dir2
+        elseif dest_node.name == "ctg_airs:air_duct_vent_lite" or dest_node.name == "ctg_airs:air_duct_vent_lite_dirty" then
             return 1, dest_pos, dest_dir2
         elseif dest_node.name == "ctg_airs:air_duct_junc" then
             return 1, dest_pos, dest_dir2
@@ -498,6 +540,27 @@ function ctg_airs.near_active_vent(pos, range)
 
     local nodes = minetest.find_nodes_in_area(pos1, pos2, {"ctg_airs:air_duct_vent"})
     for _, node in ipairs(nodes) do
+        local meta = minetest.get_meta(node)
+        if ctg_airs.vent_active(meta) then
+            return true
+        end
+    end
+    local nodes2 = minetest.find_nodes_in_area(pos1, pos2, {"ctg_airs:air_duct_vent_dirty"})
+    for _, node in ipairs(nodes2) do
+        local meta = minetest.get_meta(node)
+        if ctg_airs.vent_active(meta) then
+            return true
+        end
+    end
+    local nodes2 = minetest.find_nodes_in_area(pos1, pos2, {"ctg_airs:air_duct_vent_lite"})
+    for _, node in ipairs(nodes2) do
+        local meta = minetest.get_meta(node)
+        if ctg_airs.vent_active(meta) then
+            return true
+        end
+    end
+    local nodes2 = minetest.find_nodes_in_area(pos1, pos2, {"ctg_airs:air_duct_vent_lite_dirty"})
+    for _, node in ipairs(nodes2) do
         local meta = minetest.get_meta(node)
         if ctg_airs.vent_active(meta) then
             return true

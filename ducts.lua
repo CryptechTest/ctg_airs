@@ -12,9 +12,10 @@ local Tube = tubelib2.Tube:new({
     max_tube_length = 25,
     show_infotext = true,
     primary_node_names = {"ctg_airs:air_duct_S", "ctg_airs:air_duct_S2", "ctg_airs:air_duct_A", "ctg_airs:air_duct_A2"},
-    secondary_node_names = {"ctg_airs:air_duct_junc", "ctg_airs:air_duct_vent", "ctg_airs:lv_air_handler",
-                            "ctg_airs:lv_air_handler_active", "ctg_airs:lv_air_handler_wait", "ctg_airs:lv_air_fan",
-                            "ctg_airs:lv_air_fan_active", "ctg_airs:air_duct_vent"},
+    secondary_node_names = {"ctg_airs:air_duct_junc", "ctg_airs:air_duct_vent", "ctg_airs:air_duct_vent_dirty",
+                            "ctg_airs:air_duct_vent_lite", "ctg_airs:air_duct_vent_lite_dirty",
+                            "ctg_airs:lv_air_handler", "ctg_airs:lv_air_handler_active", "ctg_airs:lv_air_handler_wait",
+                            "ctg_airs:lv_air_fan", "ctg_airs:lv_air_fan_active"},
     after_place_tube = function(pos, param2, tube_type, num_tubes)
         -- minetest.log("type: " .. tube_type .. " num: " .. num_tubes .. " param2:" .. param2)
         if num_tubes == 2 then
@@ -43,8 +44,7 @@ end
 
 minetest.register_node("ctg_airs:air_duct_S", {
     description = S("Air Ducting"),
-    -- tiles = {"ctg_aluminum_block_top.png"},
-
+    
     -- up, down, right, left, back, front
     tiles = {"ctg_air_duct.png", "ctg_air_duct.png", "ctg_air_duct.png", "ctg_air_duct.png", "ctg_air_duct_top.png",
              "ctg_air_duct_top.png"},
@@ -55,7 +55,8 @@ minetest.register_node("ctg_airs:air_duct_S", {
     groups = {
         cracky = 3,
         level = 1,
-        metal = 1
+        metal = 1,
+        duct = 1,
     },
     is_ground_content = false,
 
@@ -90,7 +91,8 @@ minetest.register_node("ctg_airs:air_duct_S2", {
         cracky = 3,
         level = 1,
         metal = 1,
-        not_in_creative_inventory = 1
+        not_in_creative_inventory = 1,
+        duct = 1,
     },
     is_ground_content = false,
 
@@ -116,7 +118,8 @@ minetest.register_node("ctg_airs:air_duct_A", {
         cracky = 3,
         level = 1,
         metal = 1,
-        not_in_creative_inventory = 1
+        not_in_creative_inventory = 1,
+        duct = 1,
     },
     is_ground_content = false,
 
@@ -142,7 +145,8 @@ minetest.register_node("ctg_airs:air_duct_A2", {
         cracky = 3,
         level = 1,
         metal = 1,
-        not_in_creative_inventory = 1
+        not_in_creative_inventory = 1,
+        duct = 1,
     },
     is_ground_content = false,
 
@@ -165,7 +169,8 @@ minetest.register_node("ctg_airs:air_duct_junc", {
     groups = {
         cracky = 3,
         level = 1,
-        metal = 1
+        metal = 1,
+        duct = 1,
     },
     is_ground_content = false,
 
@@ -203,7 +208,8 @@ minetest.register_node("ctg_airs:air_duct_block", {
     groups = {
         cracky = 3,
         level = 1,
-        metal = 1
+        metal = 1,
+        duct = 1,
     },
     is_ground_content = false
 

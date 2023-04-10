@@ -32,7 +32,7 @@ local function process_leaves(pos)
         local nodes_thin = minetest.find_nodes_in_area(pos1, pos2, {"vacuum:atmos_thin"})
         for i, node in ipairs(nodes_thin) do
             if node ~= nil then
-                if (vacuum.has_in_range(node, "vacuum:atmos_thick", 1, 3)) then
+                if (vacuum.has_in_range(node, "vacuum:atmos_thick", 1, 1)) then
                     -- minetest.log("update thin")
                     minetest.set_node(node, {
                         name = "vacuum:atmos_thick"

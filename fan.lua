@@ -178,13 +178,18 @@ function ctg_airs.register_machine_fan(data)
         end
     end
 
+    local mv = ""
+    if ltier == "mv" then
+        mv = "^[colorize:#0fd16612"
+    end
+
     local node_name = data.modname .. ":" .. ltier .. "_" .. machine_name
     minetest.register_node(node_name, {
         description = machine_desc:format(tier),
         -- up, down, right, left, back, frondrt
-        tiles = {ltier .. "_" .. machine_name .. "_top.png", ltier .. "_" .. machine_name .. "_bottom.png",
-                 ltier .. "_" .. machine_name .. "_side.png", ltier .. "_" .. machine_name .. "_side.png",
-                 ltier .. "_" .. machine_name .. "_side.png", ltier .. "_" .. machine_name .. "_front.png"},
+        tiles = {ltier .. "_" .. machine_name .. "_top.png", ltier .. "_" .. machine_name .. "_bottom.png" .. mv,
+                 ltier .. "_" .. machine_name .. "_side.png" .. mv, ltier .. "_" .. machine_name .. "_side.png" .. mv,
+                 ltier .. "_" .. machine_name .. "_side.png" .. mv, ltier .. "_" .. machine_name .. "_front.png" .. mv},
         paramtype2 = "facedir",
         groups = groups,
         tube = data.tube and tube or nil,
@@ -249,19 +254,25 @@ function ctg_airs.register_machine_fan(data)
         end
     })
 
+    local len = 1.0
+    if (ltier == "mv") then
+        len = 0.8
+    elseif (ltier == "hv") then
+        len = 0.6
+    end
+
     minetest.register_node(data.modname .. ":" .. ltier .. "_" .. machine_name .. "_active", {
         description = machine_desc:format(tier),
-        tiles = {ltier .. "_" .. machine_name .. "_top.png",
-                 ltier .. "_" .. machine_name .. "_bottom.png" .. tube_entry_metal,
-                 ltier .. "_" .. machine_name .. "_side.png", ltier .. "_" .. machine_name .. "_side.png",
-                 ltier .. "_" .. machine_name .. "_side.png" .. tube_entry_metal, {
-            image = ltier .. "_" .. machine_name .. "_active.png",
+        tiles = {ltier .. "_" .. machine_name .. "_top.png", ltier .. "_" .. machine_name .. "_bottom.png" .. mv,
+                 ltier .. "_" .. machine_name .. "_side.png" .. mv, ltier .. "_" .. machine_name .. "_side.png" .. mv,
+                 ltier .. "_" .. machine_name .. "_side.png" .. mv, {
+            image = ltier .. "_" .. machine_name .. "_active.png" .. mv,
             backface_culling = false,
             animation = {
                 type = "vertical_frames",
                 aspect_w = 32,
                 aspect_h = 32,
-                length = 1.0
+                length = len
             }
         }},
         paramtype2 = "facedir",
@@ -313,13 +324,16 @@ function ctg_airs.register_machine_fan(data)
                 form_buttons = fs_helpers.cycling_button(meta, pipeworks.button_base, "splitstacks",
                     {pipeworks.button_off, pipeworks.button_on}) .. pipeworks.button_label
             end
+            local enabled = false
             if fields.toggle then
                 if meta:get_int("enabled") == 1 then
                     meta:set_int("enabled", 0)
                 else
                     meta:set_int("enabled", 1)
+                    enabled = true
                 end
             end
+            local formspec = update_formspec3(data, false, enabled)
             meta:set_string("formspec", formspec .. form_buttons)
         end
     })
