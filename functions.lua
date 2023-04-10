@@ -1,3 +1,5 @@
+local S = technic.getter
+
 local c_vacuum = minetest.get_content_id("vacuum:vacuum")
 local c_atmos_thin = minetest.get_content_id("vacuum:atmos_thin")
 local c_atmos_thick = minetest.get_content_id("vacuum:atmos_thick")
