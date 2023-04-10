@@ -32,7 +32,7 @@ local function process_leaves(pos)
         local nodes_thin = minetest.find_nodes_in_area(pos1, pos2, {"vacuum:atmos_thin"})
         for i, node in ipairs(nodes_thin) do
             if node ~= nil then
-                if (vacuum.has_in_range(node, "vacuum:atmos_thick", 1, 1)) then
+                if (vacuum.has_in_range(node, "vacuum:atmos_thick", 2, 2)) then
                     -- minetest.log("update thin")
                     minetest.set_node(node, {
                         name = "vacuum:atmos_thick"
@@ -55,8 +55,8 @@ minetest.register_abm({
     label = "space vacuum sublimate",
     nodenames = {"group:leaves"},
     neighbors = {"vacuum:atmos_thin"},
-    interval = 2,
-    chance = 1,
+    interval = 1,
+    chance = 2,
     min_y = vacuum.space_height,
     action = vacuum.throttle(100, function(pos)
         if not vacuum.is_pos_in_space(pos) then
