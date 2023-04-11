@@ -6,6 +6,7 @@ ctg_airs = {}
 local default_path = minetest.get_modpath("ctg_airs")
 
 dofile(default_path .. DIR_DELIM .. "items.lua")
+dofile(default_path .. DIR_DELIM .. "tubes.lua")
 dofile(default_path .. DIR_DELIM .. "ducts.lua")
 dofile(default_path .. DIR_DELIM .. "vents.lua")
 dofile(default_path .. DIR_DELIM .. "nodes.lua")
@@ -56,33 +57,33 @@ ctg_airs.register_air_handler_machine_admin({
     tier = "LV",
     demand = {0},
     speed = 1,
-    power = 100,
+    power = 100
 })
 
 ctg_airs.register_air_handler_machine({
     tier = "LV",
     demand = {1000},
     speed = 1,
-    power = 52,
+    power = 52
 })
 
 ctg_airs.register_air_handler_machine({
     tier = "MV",
     demand = {2500},
     speed = 0.8,
-    power = 80,
+    power = 80
 })
 
 ctg_airs.register_air_fan_machine({
     tier = "LV",
     demand = {500},
     speed = 1,
-    power = 25,
+    power = 25
 })
 
 ctg_airs.register_air_fan_machine({
     tier = "MV",
     demand = {1200},
     speed = 0.8,
-    power = 64,
+    power = 64
 })
