@@ -27,7 +27,7 @@ minetest.register_node("ctg_airs:air_duct_S", {
     drop = "ctg_airs:air_duct_S",
 
     after_place_node = function(pos, placer, itemstack, pointed_thing)
-        if not Tube:after_place_tube(pos, placer, pointed_thing) then
+        if not ctg_airs.Tube:after_place_tube(pos, placer, pointed_thing) then
             minetest.remove_node(pos)
             return true
         end
@@ -35,7 +35,7 @@ minetest.register_node("ctg_airs:air_duct_S", {
     end,
 
     after_dig_node = function(pos, oldnode, oldmetadata, digger)
-        Tube:after_dig_tube(pos, oldnode, oldmetadata)
+        ctg_airs.Tube:after_dig_tube(pos, oldnode, oldmetadata)
     end,
 
     on_rotate = screwdriver.disallow -- important!
@@ -63,7 +63,7 @@ minetest.register_node("ctg_airs:air_duct_S2", {
     drop = "ctg_airs:air_duct_S",
 
     after_dig_node = function(pos, oldnode, oldmetadata, digger)
-        Tube:after_dig_tube(pos, oldnode, oldmetadata)
+        ctg_airs.Tube:after_dig_tube(pos, oldnode, oldmetadata)
     end,
 
     on_rotate = screwdriver.disallow -- important!
@@ -90,7 +90,7 @@ minetest.register_node("ctg_airs:air_duct_A", {
     drop = "ctg_airs:air_duct_S",
 
     after_dig_node = function(pos, oldnode, oldmetadata, digger)
-        Tube:after_dig_tube(pos, oldnode, oldmetadata)
+        ctg_airs.Tube:after_dig_tube(pos, oldnode, oldmetadata)
     end,
 
     on_rotate = screwdriver.disallow -- important!
@@ -117,7 +117,7 @@ minetest.register_node("ctg_airs:air_duct_A2", {
     drop = "ctg_airs:air_duct_S",
 
     after_dig_node = function(pos, oldnode, oldmetadata, digger)
-        Tube:after_dig_tube(pos, oldnode, oldmetadata)
+        ctg_airs.Tube:after_dig_tube(pos, oldnode, oldmetadata)
     end,
 
     on_rotate = screwdriver.disallow -- important!
