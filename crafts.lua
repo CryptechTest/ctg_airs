@@ -2,7 +2,7 @@ local S = minetest.get_translator(minetest.get_current_modname())
 
 local a = "ctg_world:aluminum_ingot"
 local n = "ctg_world:nickel_ingot"
-local t = "ctg_world:titanium_ingot"
+local tt = "ctg_world:titanium_ingot"
 local p = "vacuum:airpump"
 local t = "default:tin_ingot"
 local m = "default:mese_crystal"
@@ -82,7 +82,7 @@ minetest.register_craft({
 
 minetest.register_craft({
     output = "ctg_airs:mv_air_handler 1",
-    recipe = {{"", t, ""}, {a, h, a}, {"", a, ""}}
+    recipe = {{"", tt, ""}, {a, h, a}, {"", a, ""}}
 })
 
 -- air tight tubes
@@ -104,5 +104,5 @@ minetest.register_craft({
 
 minetest.register_craft({
     output = "ctg_airs:mv_air_fan",
-    recipe = {{r, o, r}, {"", f, ""}, {"", t, ""}}
+    recipe = {{r, o, r}, {"", f, ""}, {"", tt, ""}}
 })
