@@ -192,7 +192,7 @@ function ctg_airs.register_machine(data)
         end
 
         if not meta:get_int("enabled") then
-            meta:set_int("enabled", 0)
+            meta:set_int("enabled", 1)
             return
         end
 
@@ -392,6 +392,7 @@ function ctg_airs.register_machine(data)
             inv:set_size("dst", 4)
             inv:set_size("upgrade1", 1)
             inv:set_size("upgrade2", 1)
+            meta:set_int("enabled", 1)
         end,
         can_dig = technic.machine_can_dig,
         allow_metadata_inventory_put = technic.machine_inventory_put,
