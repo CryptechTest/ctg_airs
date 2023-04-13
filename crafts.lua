@@ -77,12 +77,12 @@ minetest.register_craft({
 -- machine
 minetest.register_craft({
     output = "ctg_airs:lv_air_handler 1",
-    recipe = {{"", a, ""}, {"", p, ""}, {"", o, ""}}
+    recipe = {{a, a, a}, {o, p, o}, {"", o, ""}}
 })
 
 minetest.register_craft({
     output = "ctg_airs:mv_air_handler 1",
-    recipe = {{"", tt, ""}, {a, h, a}, {"", a, ""}}
+    recipe = {{tt, tt, tt}, {a, h, a}, {"", a, ""}}
 })
 
 -- air tight tubes
