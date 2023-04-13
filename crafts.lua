@@ -2,6 +2,7 @@ local S = minetest.get_translator(minetest.get_current_modname())
 
 local a = "ctg_world:aluminum_ingot"
 local n = "ctg_world:nickel_ingot"
+local t = "ctg_world:titanium_ingot"
 local p = "vacuum:airpump"
 local t = "default:tin_ingot"
 local m = "default:mese_crystal"
@@ -12,7 +13,9 @@ local b = "basic_materials:aluminum_bar"
 local r = "basic_materials:aluminum_strip"
 local i = "technic:machine_casing"
 local l = "basic_materials:plastic_sheet"
+local o = "basic_materials:motor"
 
+local f = "ctg_airs:lv_air_fan"
 local h = "ctg_airs:lv_air_handler"
 local u = "pipeworks:tube_1"
 local at = "ctg_airs:aluminum_block_embedded_tube"
@@ -50,7 +53,7 @@ minetest.register_craft({
 minetest.register_craft({
     type = "shapeless",
     output = "ctg_airs:air_duct_vent 1",
-    recipe = {"ctg_airs:air_duct_vent_dirty", "ctg_world:nickel_dust"},
+    recipe = {"ctg_airs:air_duct_vent_dirty", "ctg_world:nickel_dust"}
 })
 
 -- vent lite
@@ -68,18 +71,18 @@ minetest.register_craft({
 minetest.register_craft({
     type = "shapeless",
     output = "ctg_airs:air_duct_vent_lite 1",
-    recipe = {"ctg_airs:air_duct_vent_lite_dirty", "ctg_world:nickel_dust"},
+    recipe = {"ctg_airs:air_duct_vent_lite_dirty", "ctg_world:nickel_dust"}
 })
 
 -- machine
 minetest.register_craft({
     output = "ctg_airs:lv_air_handler 1",
-    recipe = {{"", a, ""}, {"", p, ""}, {"", t, ""}}
+    recipe = {{"", a, ""}, {"", p, ""}, {"", o, ""}}
 })
 
 minetest.register_craft({
     output = "ctg_airs:mv_air_handler 1",
-    recipe = {{"", a, ""}, {c, h, c}, {"", a, ""}}
+    recipe = {{"", t, ""}, {a, h, a}, {"", a, ""}}
 })
 
 -- air tight tubes
@@ -96,5 +99,10 @@ minetest.register_craft({
 -- fan
 minetest.register_craft({
     output = "ctg_airs:lv_air_fan",
-    recipe = {{t, r, t}, {r, b, r}, {l, i, l}}
+    recipe = {{t, o, t}, {r, b, r}, {l, i, l}}
+})
+
+minetest.register_craft({
+    output = "ctg_airs:mv_air_fan",
+    recipe = {{r, o, r}, {"", f, ""}, {"", t, ""}}
 })
