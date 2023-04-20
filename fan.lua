@@ -251,7 +251,28 @@ function ctg_airs.register_machine_fan(data)
             end
             local formspec = update_formspec3(data, false, enabled)
             meta:set_string("formspec", formspec .. form_buttons)
-        end
+        end,
+        mesecons = {
+            effector = {
+                action_on = function(pos, node)
+                    local meta = minetest.get_meta(pos)
+                    meta:set_int("enabled", 1)
+                end,
+                action_off = function(pos, node)
+                    local meta = minetest.get_meta(pos)
+                    meta:set_int("enabled", 0)
+                end
+            }
+        },
+        digiline = {
+            receptor = {
+                action = function()
+                end
+            },
+            effector = {
+                action = ctg_airs.fan_digiline_effector
+            }
+        }
     })
 
     local len = 1.0
@@ -335,7 +356,28 @@ function ctg_airs.register_machine_fan(data)
             end
             local formspec = update_formspec3(data, false, enabled)
             meta:set_string("formspec", formspec .. form_buttons)
-        end
+        end,
+        mesecons = {
+            effector = {
+                action_on = function(pos, node)
+                    local meta = minetest.get_meta(pos)
+                    meta:set_int("enabled", 1)
+                end,
+                action_off = function(pos, node)
+                    local meta = minetest.get_meta(pos)
+                    meta:set_int("enabled", 0)
+                end
+            }
+        },
+        digiline = {
+            receptor = {
+                action = function()
+                end
+            },
+            effector = {
+                action = ctg_airs.fan_digiline_effector
+            }
+        }
     })
 
     technic.register_machine(tier, node_name, technic.receiver)
