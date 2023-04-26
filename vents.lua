@@ -14,7 +14,7 @@ minetest.register_node("ctg_airs:air_duct_vent", {
         level = 1,
         metal = 1,
         duct = 3,
-        vent = 10,
+        vent = 8,
         vent_dirty = 0
     },
     is_ground_content = false,
@@ -47,7 +47,7 @@ minetest.register_node("ctg_airs:air_duct_vent_dirty", {
         level = 1,
         metal = 1,
         duct = 3,
-        vent = 10,
+        vent = 8,
         vent_dirty = 2
     },
     is_ground_content = false,
@@ -95,7 +95,7 @@ minetest.register_node("ctg_airs:air_duct_vent_lite", {
         level = 1,
         metal = 1,
         duct = 3,
-        vent = 7,
+        vent = 5,
         vent_dirty = 0
     },
     is_ground_content = false,
@@ -128,7 +128,7 @@ minetest.register_node("ctg_airs:air_duct_vent_lite_dirty", {
         level = 1,
         metal = 1,
         duct = 3,
-        vent = 7,
+        vent = 5,
         vent_dirty = 1
     },
     is_ground_content = false,

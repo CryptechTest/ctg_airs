@@ -328,18 +328,18 @@ local function process_vent2(pos, power, cost)
 
     local r = 4
     local m = 0
-    if cost > 11 then
-        r = 7
+    if cost > 9 then
+        r = 8
         m = 5
-    elseif cost > 8 then
-        r = 6
+    elseif cost > 6 then
+        r = 7
         m = 3
-    elseif cost > 5 then
+    elseif cost > 3 then
         r = 5
         m = 1
     end
 
-    if (count < 3) then
+    if (count < 8) then
         for j = 1, r do
             local sz = j
             local pos1 = vector.subtract(pos, {
@@ -356,8 +356,8 @@ local function process_vent2(pos, power, cost)
             local nodes = minetest.find_nodes_in_area(pos1, pos2, {"vacuum:vacuum"})
             for i, node in ipairs(nodes) do
                 if node ~= nil then
-                    if (vacuum.has_in_range(node, "vacuum:atmos_thick", 2, 3) and
-                        vacuum.has_in_range(node, "vacuum:atmos_thin", 1, 5)) then
+                    if (vacuum.has_in_range(node, "vacuum:atmos_thick", 2, 5 + j) and
+                        vacuum.has_in_range(node, "vacuum:atmos_thin", 1, 3)) then
                         minetest.set_node(node, {
                             name = "vacuum:atmos_thin"
                         })
@@ -370,7 +370,7 @@ local function process_vent2(pos, power, cost)
             local nodes_thin = minetest.find_nodes_in_area(pos1, pos2, {"vacuum:atmos_thin"})
             for i, node in ipairs(nodes_thin) do
                 if node ~= nil then
-                    if (vacuum.has_in_range(node, "vacuum:atmos_thick", 1, 5)) then
+                    if (vacuum.has_in_range(node, "vacuum:atmos_thick", 1, j)) then
                         -- minetest.log("update thin")
                         minetest.set_node(node, {
                             name = "vacuum:atmos_thick"
@@ -380,7 +380,7 @@ local function process_vent2(pos, power, cost)
                 end
             end
 
-            if count > 12 + m and j > 1 then
+            if count > 16 + m - (j - 2) and j > 1 then
                 break
             end
         end
