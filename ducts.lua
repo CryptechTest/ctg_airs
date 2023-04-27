@@ -14,7 +14,7 @@ minetest.register_node("ctg_airs:air_duct_S", {
              "ctg_air_duct_top.png"},
     -- paramtype = "light",
     paramtype2 = "facedir",
-    sunlight_propagates = true,
+    --sunlight_propagates = true,
     sounds = default.node_sound_metal_defaults(),
     groups = {
         cracky = 3,
@@ -49,7 +49,7 @@ minetest.register_node("ctg_airs:air_duct_S2", {
     tiles = {"ctg_air_duct.png", "ctg_air_duct.png", "ctg_air_duct.png", "ctg_air_duct.png", "ctg_air_duct.png",
              "ctg_air_duct_top.png"},
     paramtype2 = "facedir",
-    sunlight_propagates = true,
+    --sunlight_propagates = true,
     sounds = default.node_sound_metal_defaults(),
     groups = {
         cracky = 3,
@@ -76,7 +76,7 @@ minetest.register_node("ctg_airs:air_duct_A", {
     tiles = {"ctg_air_duct.png", "ctg_air_duct.png", "ctg_air_duct.png", "ctg_air_duct.png", "ctg_air_duct_top.png",
              "ctg_air_duct_top.png"},
     paramtype2 = "facedir",
-    sunlight_propagates = true,
+    --sunlight_propagates = true,
     sounds = default.node_sound_metal_defaults(),
     groups = {
         cracky = 3,
@@ -103,7 +103,7 @@ minetest.register_node("ctg_airs:air_duct_A2", {
     tiles = {"ctg_air_duct.png", "ctg_air_duct_top.png", "ctg_air_duct.png", "ctg_air_duct.png", "ctg_air_duct.png",
              "ctg_air_duct_top.png"},
     paramtype2 = "facedir",
-    sunlight_propagates = true,
+    --sunlight_propagates = true,
     sounds = default.node_sound_metal_defaults(),
     groups = {
         cracky = 3,
@@ -129,7 +129,7 @@ minetest.register_node("ctg_airs:air_duct_junc", {
     _tt_help = S("Air Register Cost 2"),
     tiles = {"ctg_air_duct_junc.png"},
     paramtype2 = "facedir",
-    sunlight_propagates = true,
+    --sunlight_propagates = true,
     sounds = default.node_sound_metal_defaults(),
     groups = {
         cracky = 3,
@@ -168,7 +168,7 @@ minetest.register_node("ctg_airs:air_duct_block", {
     description = S("Air Duct Cap"),
     tiles = {"ctg_air_duct.png"},
     -- paramtype2 = "facedir",
-    sunlight_propagates = true,
+    --sunlight_propagates = true,
     sounds = default.node_sound_metal_defaults(),
     groups = {
         cracky = 3,

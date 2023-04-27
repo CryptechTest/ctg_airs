@@ -7,7 +7,7 @@ minetest.register_node("ctg_airs:air_duct_vent", {
     tiles = {"ctg_air_duct.png", "ctg_air_duct.png", "ctg_air_duct.png", "ctg_air_duct.png", "ctg_air_duct.png",
              "ctg_air_duct_vent.png"},
     paramtype2 = "facedir",
-    sunlight_propagates = true,
+    --sunlight_propagates = true,
     sounds = default.node_sound_metal_defaults(),
     groups = {
         cracky = 3,
@@ -40,7 +40,7 @@ minetest.register_node("ctg_airs:air_duct_vent_dirty", {
     tiles = {"ctg_air_duct.png", "ctg_air_duct.png", "ctg_air_duct.png", "ctg_air_duct.png", "ctg_air_duct.png",
              "ctg_air_duct_vent_dirty.png"},
     paramtype2 = "facedir",
-    sunlight_propagates = true,
+    --sunlight_propagates = true,
     sounds = default.node_sound_metal_defaults(),
     groups = {
         cracky = 3,
@@ -88,7 +88,7 @@ minetest.register_node("ctg_airs:air_duct_vent_lite", {
     tiles = {"ctg_air_duct.png", "ctg_air_duct.png", "ctg_air_duct.png", "ctg_air_duct.png", "ctg_air_duct.png",
              "ctg_air_duct_vent_lite.png"},
     paramtype2 = "facedir",
-    sunlight_propagates = true,
+    --sunlight_propagates = true,
     sounds = default.node_sound_metal_defaults(),
     groups = {
         cracky = 3,
@@ -121,7 +121,7 @@ minetest.register_node("ctg_airs:air_duct_vent_lite_dirty", {
     tiles = {"ctg_air_duct.png", "ctg_air_duct.png", "ctg_air_duct.png", "ctg_air_duct.png", "ctg_air_duct.png",
              "ctg_air_duct_vent_lite_dirty.png"},
     paramtype2 = "facedir",
-    sunlight_propagates = true,
+    --sunlight_propagates = true,
     sounds = default.node_sound_metal_defaults(),
     groups = {
         cracky = 3,

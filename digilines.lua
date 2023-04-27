@@ -1,5 +1,5 @@
 ctg_airs.digiline_effector = function(pos, _, channel, msg)
-    local set_channel = "airpumps" -- static channel for now
+    local set_channel = "air_handlers" -- static channel for now
 
     local msgt = type(msg)
 
