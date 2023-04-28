@@ -85,17 +85,6 @@ minetest.register_craft({
     recipe = {{tt, tt, tt}, {a, h, a}, {"", a, ""}}
 })
 
--- air tight tubes
-minetest.register_craft({
-    output = "ctg_airs:aluminum_block_embedded_tube 1",
-    recipe = {{a, a, a}, {a, u, a}, {a, a, a}}
-})
-
--- minetest.register_craft({
---    output = "ctg_airs:nickel_block_embedded_tube 1",
---    recipe = {{n, n, n}, {n, u, n}, {n, n, n}}
--- })
-
 -- fan
 minetest.register_craft({
     output = "ctg_airs:lv_air_fan",
