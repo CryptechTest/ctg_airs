@@ -356,8 +356,8 @@ local function process_vent2(pos, power, cost)
             local nodes = minetest.find_nodes_in_area(pos1, pos2, {"vacuum:vacuum"})
             for i, node in ipairs(nodes) do
                 if node ~= nil then
-                    if (vacuum.has_in_range(node, "vacuum:atmos_thick", 2, 5 + j) and
-                        vacuum.has_in_range(node, "vacuum:atmos_thin", 1, 3)) then
+                    if (vacuum.has_in_range(node, "vacuum:atmos_thick", 2, 6 + j) and
+                        vacuum.has_in_range(node, "vacuum:atmos_thin", 1, 4)) then
                         minetest.set_node(node, {
                             name = "vacuum:atmos_thin"
                         })
@@ -370,7 +370,7 @@ local function process_vent2(pos, power, cost)
             local nodes_thin = minetest.find_nodes_in_area(pos1, pos2, {"vacuum:atmos_thin"})
             for i, node in ipairs(nodes_thin) do
                 if node ~= nil then
-                    if (vacuum.has_in_range(node, "vacuum:atmos_thick", 1, j)) then
+                    if (vacuum.has_in_range(node, "vacuum:atmos_thick", 1, 3 + j)) then
                         -- minetest.log("update thin")
                         minetest.set_node(node, {
                             name = "vacuum:atmos_thick"
