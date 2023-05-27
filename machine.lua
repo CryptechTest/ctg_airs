@@ -239,7 +239,7 @@ function ctg_airs.register_machine(data)
                 return
             end
 
-            if not vacuum.has_in_range(pos, "vacuum:atmos_thick", 1, 3) then
+            if not vacuum.has_in_range(pos, "vacuum:atmos_thick", 1, 3) and not typename == "air_handler_admin" then
                 technic.swap_node(pos, machine_node)
                 meta:set_string("infotext", S("%s Idle - No air nearby"):format(machine_desc_tier))
                 meta:set_int(tier .. "_EU_demand", 0)
