@@ -256,7 +256,7 @@ local function process_vent2(pos, power, cost)
         lvl = 1
     end
 
-    if cost > 8 or math.random(0, 1) == 0 then
+    --[[if cost > 8 or math.random(0, 1) == 0 then
         spawn_particle(pos, dir_x, dir_y, dir_z, acl_x, acl_y, acl_z, lvl)
     end
 
@@ -266,7 +266,7 @@ local function process_vent2(pos, power, cost)
                 spawn_particle(pos, dir_x, dir_y, dir_z, acl_x, acl_y, acl_z, lvl)
             end
         end)
-    end
+    end--]]
 
     if string.match(node.name, "duct_vent") then
         if not string.match(node.name, "_dirty") and math.random(0, 1000000) == 0 then
