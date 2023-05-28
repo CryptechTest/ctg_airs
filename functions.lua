@@ -206,13 +206,13 @@ function ctg_airs.process_leak(pos, power)
 
     power = power - (20 + count)
 
-    if ((count > 0 or math.random(0, 2) == 0)) then
+    --[[if ((count > 0 or math.random(0, 2) == 0)) then
         minetest.sound_play("air_vent_short", {
             pos = pos,
             gain = 0.12,
             pitch = 1.0
         })
-    end
+    end--]]
 
     -- minetest.log("leaking atmos..")
     return power
@@ -386,7 +386,7 @@ local function process_vent2(pos, power, cost)
         end
     end
 
-    if ((count > 0 and math.random(0, 2) == 0) and power > -5) then
+    --[[if ((count > 0 and math.random(0, 2) == 0) and power > -5) then
         local r = math.random(0.2, 1)
         minetest.after(r, function()
             minetest.sound_play("air_vent_short", {
@@ -395,7 +395,7 @@ local function process_vent2(pos, power, cost)
                 pitch = 0.6 + math.random(-0.001, 0.001)
             })
         end)
-    end
+    end--]]
 
     -- minetest.log("making atmos..")
     return power
