@@ -284,13 +284,13 @@ function ctg_airs.register_machine(data)
                     end
                     -- minetest.log("power rem: " .. power)
 
-                    if (power ~= air_power and math.random(0, 1) == 0) then
+                    --[[if (power ~= air_power and math.random(0, 1) == 0) then
                         minetest.sound_play("air_vent_short", {
                             pos = pos,
                             gain = 0.08,
                             pitch = 0.7
                         })
-                    end
+                    end--]]
                 end
             end
 
