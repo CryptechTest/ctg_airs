@@ -45,31 +45,29 @@ function spawn_particle(pos, dir_x, dir_y, dir_z, acl_x, acl_y, acl_z, lvl)
     v.x = 0.0001
     v.y = 0.001
     v.z = 0.0001
-    for i = 1, 2 do
-        if math.random() >= 0.01 then
-            local rx = dir_x * prt.vel * -math.random(0.3 * 100, 0.7 * 100) / 100
-            local ry = dir_y * prt.vel * -math.random(0.3 * 100, 0.6 * 100) / 100
-            local rz = dir_z * prt.vel * -math.random(0.3 * 100, 0.7 * 100) / 100
-            minetest.add_particle({
-                pos = pos,
-                velocity = vector.add(v, {
-                    x = rx,
-                    y = ry,
-                    z = rz
-                }),
-                acceleration = {
-                    x = acl_x,
-                    y = acl_y + math.random(-0.08, 0),
-                    z = acl_z
-                },
-                expirationtime = ((math.random() / 5) + 0.3) * prt.time,
-                size = ((math.random(0.75, 0.95)) * 2 + 0.1) * prt.size,
-                collisiondetection = prt.cols,
-                vertical = false,
-                texture = prt.texture,
-                glow = prt.glow
-            })
-        end
+    if math.random(1, 10) > 1 then
+        local rx = dir_x * prt.vel * -math.random(0.3 * 100, 0.7 * 100) / 100
+        local ry = dir_y * prt.vel * -math.random(0.3 * 100, 0.6 * 100) / 100
+        local rz = dir_z * prt.vel * -math.random(0.3 * 100, 0.7 * 100) / 100
+        minetest.add_particle({
+            pos = pos,
+            velocity = vector.add(v, {
+                x = rx,
+                y = ry,
+                z = rz
+            }),
+            acceleration = {
+                x = acl_x,
+                y = acl_y + math.random(-0.08, 0),
+                z = acl_z
+            },
+            expirationtime = ((math.random() / 5) + 0.3) * prt.time,
+            size = ((math.random(0.75, 0.95)) * 2 + 0.1) * prt.size,
+            collisiondetection = prt.cols,
+            vertical = false,
+            texture = prt.texture,
+            glow = prt.glow
+        })
     end
 end
 
@@ -157,8 +155,7 @@ function ctg_airs.process_leak(pos, power)
     local acl_z = 0.28 * (dir_z)
 
     spawn_particle(pos, dir_x, dir_y, dir_z, acl_x, acl_y, acl_z, 1.5)
-
-    for i = 1, 5 do
+    for i = 0, 5 do
         minetest.after(i, function()
             spawn_particle(pos, dir_x, dir_y, dir_z, acl_x, acl_y, acl_z, 1)
         end)
@@ -206,13 +203,13 @@ function ctg_airs.process_leak(pos, power)
 
     power = power - (20 + count)
 
-    --[[if ((count > 0 or math.random(0, 2) == 0)) then
+    if ((count > 0 or math.random(0, 2) == 0)) then
         minetest.sound_play("air_vent_short", {
             pos = pos,
-            gain = 0.12,
+            gain = 0.01,
             pitch = 1.0
         })
-    end--]]
+    end
 
     -- minetest.log("leaking atmos..")
     return power
@@ -256,17 +253,17 @@ local function process_vent2(pos, power, cost)
         lvl = 1
     end
 
-    --[[if cost > 8 or math.random(0, 1) == 0 then
+    if cost > 8 or math.random(0, 1) == 0 then
         spawn_particle(pos, dir_x, dir_y, dir_z, acl_x, acl_y, acl_z, lvl)
     end
 
     for i = 1, 5 + lvl + math.random(0, 1) do
-        minetest.after(i, function()
-            if cost > 8 or math.random(0, 1) == 0 then
+        if cost > 8 or math.random(0, 2) == 0 then
+            minetest.after(i, function()
                 spawn_particle(pos, dir_x, dir_y, dir_z, acl_x, acl_y, acl_z, lvl)
-            end
-        end)
-    end--]]
+            end)
+        end
+    end
 
     if string.match(node.name, "duct_vent") then
         if not string.match(node.name, "_dirty") and math.random(0, 1000000) == 0 then
@@ -386,16 +383,16 @@ local function process_vent2(pos, power, cost)
         end
     end
 
-    --[[if ((count > 0 and math.random(0, 2) == 0) and power > -5) then
+    if ((count > 0 and math.random(0, 2) == 0) and power > -5) then
         local r = math.random(0.2, 1)
         minetest.after(r, function()
             minetest.sound_play("air_vent_short", {
                 pos = pos,
-                gain = 0.01,
+                gain = 0.007,
                 pitch = 0.6 + math.random(-0.001, 0.001)
             })
         end)
-    end--]]
+    end
 
     -- minetest.log("making atmos..")
     return power
