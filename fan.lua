@@ -155,13 +155,13 @@ function ctg_airs.register_machine_fan(data)
                         ctg_airs.process_atmos(pos)
                     end
 
-                    if (power ~= air_power and math.random(0, 1) == 0) then
+                    --[[if (power ~= air_power and math.random(0, 1) == 0) then
                         minetest.sound_play("air_vent_short", {
                             pos = pos,
                             gain = 0.15,
                             pitch = 0.7
                         })
-                    end
+                    end--]]
                 end
             end
 
