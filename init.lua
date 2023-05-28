@@ -5,7 +5,6 @@ ctg_airs = {}
 -- load files
 local default_path = minetest.get_modpath("ctg_airs")
 
-dofile(default_path .. DIR_DELIM .. "items.lua")
 dofile(default_path .. DIR_DELIM .. "tubes.lua")
 dofile(default_path .. DIR_DELIM .. "ducts.lua")
 dofile(default_path .. DIR_DELIM .. "vents.lua")
