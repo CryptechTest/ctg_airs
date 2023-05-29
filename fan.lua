@@ -131,7 +131,8 @@ function ctg_airs.register_machine_fan(data)
                 local power = air_power
                 local valid, dest_pos, dir = ctg_airs.get_duct_output(pos)
                 -- minetest.log(tostring(valid))
-                if (valid > 0) then
+                local disable = math.random(0, 2) == 0
+                if (valid > 0 and not disable) then
                     local dest_node = minetest.get_node(dest_pos)
                     if (dest_node and dest_node.name == "ctg_airs:air_duct_vent") then
                         power = ctg_airs.process_vent(dest_pos, power)
@@ -175,6 +176,7 @@ function ctg_airs.register_machine_fan(data)
             end
 
             meta:set_int("src_time", meta:get_int("src_time") - round(10 * 100))
+            return
         end
     end
 

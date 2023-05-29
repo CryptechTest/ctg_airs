@@ -264,7 +264,8 @@ function ctg_airs.register_machine(data)
                 local power = air_power
                 local valid, dest_pos, dir = ctg_airs.get_duct_output(pos)
                 -- minetest.log(tostring(valid))
-                if (valid > 0) then
+                local disable = false
+                if (valid > 0 and not disable) then
                     local dest_node = minetest.get_node(dest_pos)
                     if (dest_node and dest_node.name == "ctg_airs:air_duct_vent") then
                         power = ctg_airs.process_vent(dest_pos, power)
@@ -343,6 +344,7 @@ function ctg_airs.register_machine(data)
             inv:set_list("src", result.new_input)
             inv:set_list("dst", inv:get_list("dst_tmp"))
 
+            return
         end
     end
 
