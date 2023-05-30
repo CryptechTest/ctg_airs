@@ -260,7 +260,7 @@ function ctg_airs.register_machine(data)
                 return
             end
 
-            if typename == "air_handler" or typename == "air_handler_admin" then
+            if typename == "air_handler" or typename == "air_handler_admin" and not vacuum.is_pos_in_spawn(pos) then
                 local power = air_power
                 local valid, dest_pos, dir = ctg_airs.get_duct_output(pos)
                 -- minetest.log(tostring(valid))

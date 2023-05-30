@@ -127,7 +127,7 @@ function ctg_airs.register_machine_fan(data)
             meta:set_int(tier .. "_EU_demand", machine_demand[EU_upgrade + 1])
             technic.swap_node(pos, machine_node .. "_active")
 
-            if typename == "air_fan" then
+            if typename == "air_fan" and not vacuum.is_pos_in_spawn(pos) then
                 local power = air_power
                 local valid, dest_pos, dir = ctg_airs.get_duct_output(pos)
                 -- minetest.log(tostring(valid))

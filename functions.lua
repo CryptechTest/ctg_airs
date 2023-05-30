@@ -265,6 +265,20 @@ local function process_vent2(pos, power, cost)
         end
     end
 
+    if vacuum.is_pos_in_spawn(pos) then
+        if ((cost > 0 and math.random(0, 2) == 0) and power > -5) then
+            local r = math.random(0.2, 1)
+            minetest.after(r, function()
+                minetest.sound_play("air_vent_short", {
+                    pos = pos,
+                    gain = 0.007,
+                    pitch = 0.6 + math.random(-0.001, 0.001)
+                })
+            end)
+        end
+        return cost
+    end
+
     if string.match(node.name, "duct_vent") then
         if not string.match(node.name, "_dirty") and math.random(0, 1000000) == 0 then
             minetest.set_node(pos, {
