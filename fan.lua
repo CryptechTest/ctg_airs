@@ -70,7 +70,7 @@ function ctg_airs.register_machine_fan(data)
         local inv = meta:get_inventory()
         local eu_input = meta:get_int(tier .. "_EU_input")
 
-        local machine_desc_tier = machine_desc:format(tier)
+        local machine_desc_tier = S("%s " .. machine_desc):format(tier)
         local machine_node = data.modname .. ":" .. ltier .. "_" .. machine_name
         local machine_demand = data.demand
 
@@ -103,7 +103,7 @@ function ctg_airs.register_machine_fan(data)
 
             if (not enabled) then
                 technic.swap_node(pos, machine_node)
-                meta:set_string("infotext", S("%s Disabled"):format(machine_desc_tier))
+                meta:set_string("infotext", machine_desc_tier .. S(" Disabled"))
                 meta:set_int(tier .. "_EU_demand", 0)
                 meta:set_int("src_time", 0)
                 local formspec = update_formspec3(data, false, enabled)
@@ -113,7 +113,7 @@ function ctg_airs.register_machine_fan(data)
 
             if not vacuum.has_in_range(pos, "vacuum:atmos_thick", 1, 3) then
                 technic.swap_node(pos, machine_node)
-                meta:set_string("infotext", S("%s Idle - No air nearby"):format(machine_desc_tier))
+                meta:set_string("infotext", machine_desc_tier .. S(" Idle - No air nearby"))
                 meta:set_int(tier .. "_EU_demand", 0)
                 meta:set_int("src_time", 0)
                 local formspec = update_formspec3(data, false, enabled)
@@ -165,11 +165,11 @@ function ctg_airs.register_machine_fan(data)
                 end
             end
 
-            meta:set_string("infotext", S("%s Active"):format(machine_desc_tier))
+            meta:set_string("infotext", machine_desc_tier .. S(" Active"))
             if meta:get_int("src_time") < round(10 * 100) then
                 if not powered then
                     technic.swap_node(pos, machine_node)
-                    meta:set_string("infotext", S("%s Unpowered"):format(machine_desc_tier))
+                    meta:set_string("infotext", machine_desc_tier .. S(" Unpowered"))
                 end
                 return
             end

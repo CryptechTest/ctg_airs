@@ -179,7 +179,7 @@ function ctg_airs.register_machine(data)
         local inv = meta:get_inventory()
         local eu_input = meta:get_int(tier .. "_EU_input")
 
-        local machine_desc_tier = machine_desc:format(tier)
+        local machine_desc_tier = S("%s " .. machine_desc):format(tier)
         local machine_node = data.modname .. ":" .. ltier .. "_" .. machine_name
         local machine_demand = data.demand
 
@@ -230,7 +230,7 @@ function ctg_airs.register_machine(data)
 
             if (not enabled) then
                 technic.swap_node(pos, machine_node)
-                meta:set_string("infotext", S("%s Disabled"):format(machine_desc_tier))
+                meta:set_string("infotext", machine_desc_tier .. S(" Disabled"))
                 meta:set_int(tier .. "_EU_demand", 0)
                 meta:set_int("src_time", 0)
                 local formspec = update_formspec(data, false, enabled, input_size)
@@ -240,7 +240,7 @@ function ctg_airs.register_machine(data)
 
             if not vacuum.has_in_range(pos, "vacuum:atmos_thick", 1, 3) and not typename == "air_handler_admin" then
                 technic.swap_node(pos, machine_node)
-                meta:set_string("infotext", S("%s Idle - No air nearby"):format(machine_desc_tier))
+                meta:set_string("infotext", machine_desc_tier .. S(" Idle - No air nearby"))
                 meta:set_int(tier .. "_EU_demand", 0)
                 meta:set_int("src_time", 0)
                 local formspec = update_formspec(data, false, enabled, input_size)
@@ -251,7 +251,7 @@ function ctg_airs.register_machine(data)
             local result = get_bottle(typename, inv:get_list("src"))
             if not result then
                 technic.swap_node(pos, machine_node)
-                meta:set_string("infotext", S("%s Idle - No air bottles"):format(machine_desc_tier))
+                meta:set_string("infotext", machine_desc_tier .. S(" Idle - No air bottles"))
                 meta:set_int(tier .. "_EU_demand", 0)
                 meta:set_int("src_time", 0)
                 local formspec = update_formspec(data, false, enabled, input_size)
@@ -303,11 +303,11 @@ function ctg_airs.register_machine(data)
             elseif (math.random(1, 3) > 1) then
                 technic.swap_node(pos, machine_node .. "_wait")
             end
-            meta:set_string("infotext", S("%s Active"):format(machine_desc_tier))
+            meta:set_string("infotext", machine_desc_tier .. S(" Active"))
             if meta:get_int("src_time") < round(result.time * 200) then
                 if not powered and typename ~= "air_handler_admin" then
                     technic.swap_node(pos, machine_node)
-                    meta:set_string("infotext", S("%s Unpowered"):format(machine_desc_tier))
+                    meta:set_string("infotext", machine_desc_tier .. S(" Unpowered"))
                 end
                 return
             end
@@ -333,7 +333,7 @@ function ctg_airs.register_machine(data)
                 end
                 if not room_for_output then
                     technic.swap_node(pos, machine_node)
-                    meta:set_string("infotext", S("%s Idle - Output full"):format(machine_desc_tier))
+                    meta:set_string("infotext", machine_desc_tier .. S(" Idle - Output full"))
                     meta:set_int(tier .. "_EU_demand", 0)
                     meta:set_int("src_time", round(result.time * 200))
                     return

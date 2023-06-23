@@ -27,7 +27,7 @@ function ctg_airs.register_air_handler_machine(data)
     data.machine_name = "air_handler"
     -- data.can_insert = true
     data.typename = "air_handler"
-    data.machine_desc = S("%s Air Handler Machine")
+    data.machine_desc = "Air Handler Machine"
     ctg_airs.register_machine(data)
 end
 
@@ -35,7 +35,7 @@ function ctg_airs.register_air_fan_machine(data)
     data.machine_name = "air_fan"
     -- data.can_insert = true
     data.typename = "air_fan"
-    data.machine_desc = S("%s Air Fan")
+    data.machine_desc = "Air Fan"
     ctg_airs.register_machine_fan(data)
 end
 
@@ -49,7 +49,7 @@ function ctg_airs.register_air_handler_machine_admin(data)
     data.machine_name = "air_handler_gen"
     -- data.can_insert = true
     data.typename = "air_handler_admin"
-    data.machine_desc = S("%s Air Admin Machine")
+    data.machine_desc = "Air Admin Machine"
     ctg_airs.register_machine(data)
 end
 
