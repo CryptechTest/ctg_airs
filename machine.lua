@@ -1,5 +1,4 @@
--- local S = minetest.get_translator(minetest.get_current_modname())
-local S = technic.getter
+local S = minetest.get_translator(minetest.get_current_modname())
 
 local has_pipeworks = minetest.get_modpath("pipeworks")
 local fs_helpers = pipeworks.fs_helpers
