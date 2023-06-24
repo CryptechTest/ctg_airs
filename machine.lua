@@ -139,10 +139,10 @@ function ctg_airs.register_machine(data)
     if typename == 'bottle' then
         input_size = 2
     end
-    local machine_name = data.machine_name
-    local machine_desc = data.machine_desc
     local tier = data.tier
     local ltier = string.lower(tier)
+    local machine_name = data.machine_name
+    local machine_desc = tier .. " " .. data.machine_desc
     local air_power = data.power
 
     data.modname = data.modname or minetest.get_current_modname()
