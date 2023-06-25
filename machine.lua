@@ -179,7 +179,7 @@ function ctg_airs.register_machine(data)
         local inv = meta:get_inventory()
         local eu_input = meta:get_int(tier .. "_EU_input")
 
-        local machine_desc_tier = S("%s " .. machine_desc):format(tier)
+        local machine_desc_tier = machine_desc
         local machine_node = data.modname .. ":" .. ltier .. "_" .. machine_name
         local machine_demand = data.demand
 
