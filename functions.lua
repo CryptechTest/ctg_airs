@@ -27,7 +27,153 @@ local is_duct_vent = function(pos)
     return false
 end
 
-function spawn_particle(pos, dir_x, dir_y, dir_z, acl_x, acl_y, acl_z, lvl)
+local function has_pos(tab, val)
+    for index, value in ipairs(tab) do
+        if value.x == val.x and value.y == val.y and value.z == val.z then
+            return true
+        end
+    end
+    return false
+end
+
+local function shuffle(t)
+    local tbl = {}
+    for i = 1, #t do
+        tbl[i] = t[i]
+    end
+    for i = #tbl, 2, -1 do
+        local j = math.random(i)
+        tbl[i], tbl[j] = tbl[j], tbl[i]
+    end
+    return tbl
+end
+
+local function traverse_atmos_local(pos_orig, pos, r)
+    local positions = {{
+        x = pos.x + 1,
+        y = pos.y,
+        z = pos.z
+    }, {
+        x = pos.x - 1,
+        y = pos.y,
+        z = pos.z
+    }, {
+        x = pos.x,
+        y = pos.y + 1,
+        z = pos.z
+    }, {
+        x = pos.x,
+        y = pos.y - 1,
+        z = pos.z
+    }, {
+        x = pos.x,
+        y = pos.y,
+        z = pos.z + 1
+    }, {
+        x = pos.x,
+        y = pos.y,
+        z = pos.z - 1
+    }}
+    local nodes = {}
+    local dist = vector.distance({
+        x = pos.x,
+        y = pos.y,
+        z = pos.z
+    }, {
+        x = pos_orig.x,
+        y = pos_orig.y,
+        z = pos_orig.z
+    })
+    if (dist > r) then
+        return nodes;
+    end
+    table.insert(nodes, pos);
+    for i, cur_pos in pairs(shuffle(positions)) do
+        local dist = vector.distance({
+            x = pos_orig.x,
+            y = pos_orig.y,
+            z = pos_orig.z
+        }, {
+            x = cur_pos.x,
+            y = cur_pos.y,
+            z = cur_pos.z
+        })
+        if (dist < math.random(math.max(2, r - 3), r + 1)) then
+            local n = minetest.get_node(cur_pos);
+            if n then
+                if minetest.get_item_group(n.name, "vacuum") == 1 or minetest.get_item_group(n.name, "atmosphere") > 0 then
+                    table.insert(nodes, cur_pos);
+                end
+            end
+        end
+    end
+    return nodes;
+end
+
+local function traverse_atmos(trv, pos, pos_next, r, depth)
+    if depth > 12 then
+        return {}
+    end
+    if pos_next == nil then
+        pos_next = pos;
+    end
+    local nodes = {};
+    if has_pos(trv, pos_next) then
+        return nodes;
+    end
+    table.insert(nodes, pos_next)
+    table.insert(trv, pos_next);
+    local trav_nodes = traverse_atmos_local(pos, pos_next, r);
+    for i, pos2 in pairs(trav_nodes) do
+        if has_pos(trv, pos2) == false then
+            local atmoss = traverse_atmos(trv, pos, pos2, r, depth + 1);
+            for i, n in pairs(atmoss) do
+                table.insert(nodes, n)
+            end
+        end
+
+    end
+    return nodes;
+end
+
+local fill_atmos_near = function(pos, r)
+    local traversed = {}
+    local nodes = traverse_atmos(traversed, pos, nil, r, 0);
+    -- minetest.log("found " .. #nodes);
+    local count = 0;
+    for i, node_pos in pairs(nodes) do
+        if (count > 50) then -- 125=5x5
+            break
+        end
+        local node = minetest.get_node(node_pos)
+        local chng = false;
+        local vacc = false;
+        if (minetest.get_item_group(node.name, "vacuum") == 1) then
+            chng = true;
+            vacc = true;
+        elseif (minetest.get_item_group(node.name, "atmosphere") == 1) then
+            chng = true;
+        end
+        if chng then
+            count = count + 1;
+            if vacc then
+                minetest.set_node(node_pos, {
+                    name = "vacuum:atmos_thin"
+                })
+            else
+                minetest.set_node(node_pos, {
+                    name = "vacuum:atmos_thick"
+                })
+            end
+            if math.random(0, 5) == 0 then
+                ctg_airs.spawn_particle(node_pos, math.random(-0.001, 0.001), math.random(-0.001, 0.001),
+                    math.random(-0.001, 0.001), 0, 0, 0, math.random(2, 4), 10)
+            end
+        end
+    end
+end
+
+function ctg_airs.spawn_particle(pos, dir_x, dir_y, dir_z, acl_x, acl_y, acl_z, lvl, time)
     local texture = "ctg_air_vent_vapor.png"
     if (math.random() > 0.5) then
         texture = "ctg_air_vent_vapor.png^[transformR90]"
@@ -35,7 +181,7 @@ function spawn_particle(pos, dir_x, dir_y, dir_z, acl_x, acl_y, acl_z, lvl)
     local prt = {
         texture = texture,
         vel = 2,
-        time = 6,
+        time = time or 6,
         size = 3 + (lvl or 1),
         glow = 3,
         cols = true
@@ -154,10 +300,10 @@ function ctg_airs.process_leak(pos, power)
     local acl_y = 0.05 * (dir_y)
     local acl_z = 0.28 * (dir_z)
 
-    spawn_particle(pos, dir_x, dir_y, dir_z, acl_x, acl_y, acl_z, 1.5)
+    ctg_airs.spawn_particle(pos, dir_x, dir_y, dir_z, acl_x, acl_y, acl_z, 1.5, 7)
     for i = 0, 5 do
         minetest.after(i, function()
-            spawn_particle(pos, dir_x, dir_y, dir_z, acl_x, acl_y, acl_z, 1)
+            ctg_airs.spawn_particle(pos, dir_x, dir_y, dir_z, acl_x, acl_y, acl_z, 1, 6)
         end)
     end
 
@@ -254,13 +400,13 @@ local function process_vent2(pos, power, cost)
     end
 
     if cost > 8 or math.random(0, 1) == 0 then
-        spawn_particle(pos, dir_x, dir_y, dir_z, acl_x, acl_y, acl_z, lvl)
+        ctg_airs.spawn_particle(pos, dir_x, dir_y, dir_z, acl_x, acl_y, acl_z, lvl, 7)
     end
 
     for i = 1, 5 + lvl + math.random(0, 1) do
         if cost > 8 or math.random(0, 2) == 0 then
             minetest.after(i, function()
-                spawn_particle(pos, dir_x, dir_y, dir_z, acl_x, acl_y, acl_z, lvl)
+                ctg_airs.spawn_particle(pos, dir_x, dir_y, dir_z, acl_x, acl_y, acl_z, lvl, 6)
             end)
         end
     end
@@ -293,46 +439,13 @@ local function process_vent2(pos, power, cost)
         end
     end
 
-    local range = {
-        x = 1,
-        y = 1,
-        z = 1
-    }
-    local pos1 = vector.subtract(pos, range)
-    local pos2 = vector.add(pos, range)
+    local dir_pos = vector.subtract(pos, {
+        x = dir_x,
+        y = dir_y,
+        z = dir_z
+    });
 
-    local manip = minetest.get_voxel_manip()
-    local e1, e2 = manip:read_from_map(pos1, pos2)
-    local area = VoxelArea:new({
-        MinEdge = e1,
-        MaxEdge = e2
-    })
-    local data = manip:get_data()
-
-    local count = 0
-    for z = pos1.z, pos2.z do
-        for y = pos1.y, pos2.y do
-            for x = pos1.x, pos2.x do
-
-                local index = area:index(x, y, z)
-                if data[index] == c_atmos_thin then
-                    data[index] = c_atmos_thick
-                    count = count + 1
-                elseif data[index] == c_vacuum then
-                    data[index] = c_atmos_thin
-                    count = count + 1
-                elseif data[index] == c_air then
-                    data[index] = c_atmos_thin
-                    count = count + 1
-                end
-
-            end
-        end
-    end
-
-    manip:set_data(data)
-    manip:write_to_map()
-
+    local count = 1;
     local dirty = minetest.get_item_group(node.name, "vent_dirty") or 0
 
     power = power - (cost + dirty)
@@ -350,52 +463,7 @@ local function process_vent2(pos, power, cost)
         m = 1
     end
 
-    if (count < 8) then
-        for j = 1, r do
-            local sz = j
-            local pos1 = vector.subtract(pos, {
-                x = sz,
-                y = sz,
-                z = sz
-            })
-            local pos2 = vector.add(pos, {
-                x = sz,
-                y = sz,
-                z = sz
-            })
-
-            local nodes = minetest.find_nodes_in_area(pos1, pos2, {"vacuum:vacuum"})
-            for i, node in ipairs(nodes) do
-                if node ~= nil then
-                    if (vacuum.has_in_range(node, "vacuum:atmos_thick", 2, 6 + j) and
-                        vacuum.has_in_range(node, "vacuum:atmos_thin", 1, 4)) then
-                        minetest.set_node(node, {
-                            name = "vacuum:atmos_thin"
-                        })
-                        count = count + 1
-                        -- vacuum.replace_nodes_at(pos, j, node.name, "vacuum:atmos_thick")
-                    end
-                end
-            end
-
-            local nodes_thin = minetest.find_nodes_in_area(pos1, pos2, {"vacuum:atmos_thin"})
-            for i, node in ipairs(nodes_thin) do
-                if node ~= nil then
-                    if (vacuum.has_in_range(node, "vacuum:atmos_thick", 1, 3 + j)) then
-                        -- minetest.log("update thin")
-                        minetest.set_node(node, {
-                            name = "vacuum:atmos_thick"
-                        })
-                        count = count + 1
-                    end
-                end
-            end
-
-            if count > 16 + m - (j - 2) and j > 1 then
-                break
-            end
-        end
-    end
+    fill_atmos_near(dir_pos, r - dirty);
 
     if ((count > 0 and math.random(0, 2) == 0) and power > -5) then
         local r = math.random(0.2, 1)

@@ -203,6 +203,10 @@ function ctg_airs.register_machine(data)
             technic.handle_machine_pipeworks(pos, tube_upgrade)
         end
 
+        if not meta:get_int("vent_tick") then
+            meta:set_int("vent_tick", 1);
+        end
+
         local powered = eu_input >= machine_demand[EU_upgrade + 1]
         if powered then
             meta:set_int("src_time", meta:get_int("src_time") + round(data.speed * 100 * 1.0))
@@ -259,12 +263,18 @@ function ctg_airs.register_machine(data)
                 return
             end
 
-            if typename == "air_handler" or typename == "air_handler_admin" and not vacuum.is_pos_in_spawn(pos) then
+            meta:set_int("vent_tick", meta:get_int("vent_tick") - 1);
+            if meta:get_int("vent_tick") <= 0 and (typename == "air_handler" or typename == "air_handler_admin") and
+                not vacuum.is_pos_in_spawn(pos) then
+
+                meta:set_int("vent_tick", math.random(0, 1));
+
                 local power = air_power
                 local valid, dest_pos, dir = ctg_airs.get_duct_output(pos)
                 -- minetest.log(tostring(valid))
                 local disable = false
                 if (valid > 0 and not disable) then
+                    -- minetest.log("processing air handler... " .. tostring(pos))
                     local dest_node = minetest.get_node(dest_pos)
                     if (dest_node and dest_node.name == "ctg_airs:air_duct_vent") then
                         power = ctg_airs.process_vent(dest_pos, power)
@@ -284,13 +294,18 @@ function ctg_airs.register_machine(data)
                     end
                     -- minetest.log("power rem: " .. power)
 
-                    --[[if (power ~= air_power and math.random(0, 1) == 0) then
+                    if math.random(0, 2) > 0 then
+                        ctg_airs.spawn_particle(pos, 0, 0, 0, math.random(-0.1, 0.1), math.random(-0.1, 0.1),
+                            math.random(-0.1, 0.2), 3)
+                    end
+
+                    if (power ~= air_power and math.random(0, 1) == 0) then
                         minetest.sound_play("air_vent_short", {
                             pos = pos,
-                            gain = 0.08,
-                            pitch = 0.7
+                            gain = 0.01,
+                            pitch = math.random(0.67, 0.72)
                         })
-                    end--]]
+                    end
                 end
             end
 
@@ -311,6 +326,7 @@ function ctg_airs.register_machine(data)
                 end
                 return
             end
+
             -- technic.swap_node(pos, machine_node.."_wait")
             local output = result.output
             if output ~= nil then
