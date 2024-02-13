@@ -76,7 +76,7 @@ function update_formspec2(data, running, enabled, size, percent)
     return formspec
 end
 
-function get_bottle(typename, items)
+function get_bottle(typename, items, has_air_near)
     local new_input = {}
     local new_output = nil
     local run_length = 0;
@@ -94,6 +94,7 @@ function get_bottle(typename, items)
                 })
                 run_length = 6 + c
                 c = c + 1
+                break
             end
         end
     end
@@ -107,8 +108,13 @@ function get_bottle(typename, items)
                     name = "vessels:steel_bottle",
                     count = c
                 })
-                run_length = 15 + c
+                if has_air_near then
+                    run_length = 15 + c
+                else
+                    run_length = 5 + c
+                end
                 c = c + 1
+                break
             elseif stack:get_name() == 'vessels:steel_bottle' then
                 -- skip over empty bottle..
             end
@@ -236,23 +242,24 @@ function ctg_airs.register_machine(data)
                 technic.swap_node(pos, machine_node)
                 meta:set_string("infotext", machine_desc_tier .. S(" Disabled"))
                 meta:set_int(tier .. "_EU_demand", 0)
-                meta:set_int("src_time", 0)
+                -- meta:set_int("src_time", 0)
                 local formspec = update_formspec(data, false, enabled, input_size)
                 meta:set_string("formspec", formspec .. form_buttons)
                 return
             end
 
-            if not vacuum.has_in_range(pos, "vacuum:atmos_thick", 1, 3) and not typename == "air_handler_admin" then
+            if vacuum.has_in_range(pos, "vacuum:atmos_thick", 1, 1) == false and typename ~= "air_handler_admin" then
                 technic.swap_node(pos, machine_node)
                 meta:set_string("infotext", machine_desc_tier .. S(" Idle - No air nearby"))
                 meta:set_int(tier .. "_EU_demand", 0)
-                meta:set_int("src_time", 0)
+                -- meta:set_int("src_time", 0)
                 local formspec = update_formspec(data, false, enabled, input_size)
                 meta:set_string("formspec", formspec .. form_buttons)
                 return
             end
 
-            local result = get_bottle(typename, inv:get_list("src"))
+            local has_air_near = vacuum.has_in_range(pos, "vacuum:atmos_thick", 1, 3);
+            local result = get_bottle(typename, inv:get_list("src"), has_air_near)
             if not result then
                 technic.swap_node(pos, machine_node)
                 meta:set_string("infotext", machine_desc_tier .. S(" Idle - No air bottles"))
@@ -263,53 +270,7 @@ function ctg_airs.register_machine(data)
                 return
             end
 
-            meta:set_int("vent_tick", meta:get_int("vent_tick") - 1);
-            if meta:get_int("vent_tick") <= 0 and (typename == "air_handler" or typename == "air_handler_admin") and
-                not vacuum.is_pos_in_spawn(pos) then
-
-                meta:set_int("vent_tick", math.random(0, 1));
-
-                local power = air_power
-                local valid, dest_pos, dir = ctg_airs.get_duct_output(pos)
-                -- minetest.log(tostring(valid))
-                local disable = false
-                if (valid > 0 and not disable) then
-                    -- minetest.log("processing air handler... " .. tostring(pos))
-                    local dest_node = minetest.get_node(dest_pos)
-                    if (dest_node and dest_node.name == "ctg_airs:air_duct_vent") then
-                        power = ctg_airs.process_vent(dest_pos, power)
-                        -- minetest.log("vent")
-                    elseif (dest_node and dest_node.name == "ctg_airs:air_duct_junc") then
-                        power = ctg_airs.process_junc(dest_pos, dir, power)
-                        -- minetest.log("junc")
-                    elseif (dest_node and dest_node.name == "vacuum:vacuum") then
-                        power = ctg_airs.process_leak(dest_pos, power)
-                        -- minetest.log("vacuum")
-                    elseif (dest_node and dest_node.name == "vacuum:atmos_thin") then
-                        power = ctg_airs.process_leak(dest_pos, power)
-                        -- minetest.log("thin atmos")
-                    elseif (dest_node and dest_node.name == "vacuum:atmos_thick") then
-                        power = ctg_airs.process_leak(dest_pos, power)
-                        -- minetest.log("thick atmos")
-                    end
-                    -- minetest.log("power rem: " .. power)
-
-                    if math.random(0, 2) > 0 then
-                        ctg_airs.spawn_particle(pos, 0, 0, 0, math.random(-0.1, 0.1), math.random(-0.1, 0.1),
-                            math.random(-0.1, 0.2), 3)
-                    end
-
-                    if (power ~= air_power and math.random(0, 1) == 0) then
-                        minetest.sound_play("air_vent_short", {
-                            pos = pos,
-                            gain = 0.01,
-                            pitch = math.random(0.67, 0.72)
-                        })
-                    end
-                end
-            end
-
-            local item_percent = (math.floor(meta:get_int("src_time") / round(result.time * 200) * 100))
+            local item_percent = (math.floor(meta:get_int("src_time") / round(result.time * 250) * 100))
             local formspec = update_formspec2(data, true, enabled, input_size, item_percent)
             meta:set_string("formspec", formspec .. form_buttons)
             meta:set_int(tier .. "_EU_demand", machine_demand[EU_upgrade + 1])
@@ -319,11 +280,72 @@ function ctg_airs.register_machine(data)
                 technic.swap_node(pos, machine_node .. "_wait")
             end
             meta:set_string("infotext", machine_desc_tier .. S(" Active"))
-            if meta:get_int("src_time") < round(result.time * 200) then
-                if not powered and typename ~= "air_handler_admin" then
+            if meta:get_int("src_time") < round(result.time * 250) then
+                if powered == false and typename ~= "air_handler_admin" then
                     technic.swap_node(pos, machine_node)
                     meta:set_string("infotext", machine_desc_tier .. S(" Unpowered"))
+                    return;
                 end
+            end
+
+            meta:set_int("vent_tick", meta:get_int("vent_tick") - 1);
+            if meta:get_int("vent_tick") <= 0 and (typename == "air_handler" or typename == "air_handler_admin") and
+                not vacuum.is_pos_in_spawn(pos) then
+
+                local count = 0;
+                local power = air_power or 0
+                local valid, dest_pos, dir = ctg_airs.get_duct_output(pos)
+                -- minetest.log(tostring(valid))
+                local disable = false
+                if (valid > 0 and not disable) then
+                    -- minetest.log("processing air handler... " .. tostring(pos))
+                    local dest_node = minetest.get_node(dest_pos)
+                    if (dest_node and dest_node.name == "ctg_airs:air_duct_vent") then
+                        count, power = ctg_airs.process_vent(dest_pos, air_power)
+                        -- minetest.log("vent")
+                    elseif (dest_node and dest_node.name == "ctg_airs:air_duct_junc") then
+                        count, power = ctg_airs.process_junc(dest_pos, dir, air_power)
+                        -- minetest.log("junc")
+                    elseif (dest_node and dest_node.name == "vacuum:vacuum") then
+                        count, power = ctg_airs.process_leak(dest_pos, air_power)
+                        -- minetest.log("vacuum")
+                    elseif (dest_node and dest_node.name == "vacuum:atmos_thin") then
+                        count, power = ctg_airs.process_leak(dest_pos, air_power)
+                        -- minetest.log("thin atmos")
+                    elseif (dest_node and dest_node.name == "vacuum:atmos_thick") then
+                        count, power = ctg_airs.process_leak(dest_pos, air_power)
+                        -- minetest.log("thick atmos")
+                    end
+                    -- minetest.log("power rem: " .. power)
+
+                    if count <= 1 then
+                        meta:set_int("vent_tick", math.random(1, 6));
+                    elseif count <= 27 then
+                        meta:set_int("vent_tick", math.random(0, 5));
+                    elseif count <= 125 then
+                        meta:set_int("vent_tick", math.random(0, 2));
+                    else
+                        meta:set_int("vent_tick", 1);
+                    end
+
+                    meta:set_int("src_time", meta:get_int("src_time") + round(count))
+
+                    if math.random(0, 2) > 0 then
+                        ctg_airs.spawn_particle(pos, 0, 0, 0, math.random(-0.1, 0.1), math.random(-0.1, 0.1),
+                            math.random(-0.1, 0.2), 3)
+                    end
+
+                    if (power ~= air_power and math.random(0, 5) == 0) then
+                        minetest.sound_play("air_vent_short", {
+                            pos = pos,
+                            gain = 0.02 + (count * 0.001),
+                            pitch = math.random(0.57, 0.72)
+                        })
+                    end
+                end
+            end
+
+            if meta:get_int("src_time") < round(result.time * 250) then
                 return
             end
 
@@ -351,11 +373,11 @@ function ctg_airs.register_machine(data)
                     technic.swap_node(pos, machine_node)
                     meta:set_string("infotext", machine_desc_tier .. S(" Idle - Output full"))
                     meta:set_int(tier .. "_EU_demand", 0)
-                    meta:set_int("src_time", round(result.time * 200))
+                    meta:set_int("src_time", round(result.time * 250))
                     return
                 end
             end
-            meta:set_int("src_time", meta:get_int("src_time") - round(result.time * 200))
+            meta:set_int("src_time", 0)
             inv:set_list("src", result.new_input)
             inv:set_list("dst", inv:get_list("dst_tmp"))
 

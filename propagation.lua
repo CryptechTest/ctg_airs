@@ -3,7 +3,7 @@
 minetest.register_abm({
     label = "thin atmos + vacuum -> atmos replacement",
     nodenames = {"vacuum:atmos_thin", "vacuum:vacuum"},
-    neighbors = {"ctg_airs:air_duct_vent"},
+    neighbors = {"ctg_airs:air_duct_vent", "ctg_airs:air_duct_vent_lite"},
     interval = 5,
     chance = 3,
     min_y = vacuum.space_height,
@@ -21,3 +21,17 @@ minetest.register_abm({
         end
     end)
 })
+
+-- disable vents abm
+minetest.register_abm({
+    label = "vent + vacuum -> vents off",
+    nodenames = {"ctg_airs:air_duct_vent", "ctg_airs:air_duct_vent_lite"},
+    neighbors = {"vacuum:vacuum"},
+    interval = 10,
+    chance = 2,
+    min_y = vacuum.space_height,
+    action = vacuum.throttle(100, function(pos)
+        minetest.get_meta(pos):set_int("active", 0)
+    end)
+})
+

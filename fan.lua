@@ -127,26 +127,27 @@ function ctg_airs.register_machine_fan(data)
             technic.swap_node(pos, machine_node .. "_active")
 
             if typename == "air_fan" and not vacuum.is_pos_in_spawn(pos) then
-                local power = air_power
+                local count = 0;
+                local power = 0
                 local valid, dest_pos, dir = ctg_airs.get_duct_output(pos)
                 -- minetest.log(tostring(valid))
                 local disable = math.random(0, 2) == 0
                 if (valid > 0 and not disable) then
                     local dest_node = minetest.get_node(dest_pos)
                     if (dest_node and dest_node.name == "ctg_airs:air_duct_vent") then
-                        power = ctg_airs.process_vent(dest_pos, power)
+                        count, power = ctg_airs.process_vent(dest_pos, air_power)
                         -- minetest.log("vent")
                     elseif (dest_node and dest_node.name == "ctg_airs:air_duct_junc") then
-                        power = ctg_airs.process_junc(dest_pos, dir, power)
+                        count, power = ctg_airs.process_junc(dest_pos, dir, air_power)
                         -- minetest.log("junc")
                     elseif (dest_node and dest_node.name == "vacuum:vacuum") then
-                        power = ctg_airs.process_leak(dest_pos, power)
+                        count, power = ctg_airs.process_leak(dest_pos, air_power)
                         -- minetest.log("vacuum")
                     elseif (dest_node and dest_node.name == "vacuum:atmos_thin") then
-                        power = ctg_airs.process_leak(dest_pos, power)
+                        count, power = ctg_airs.process_leak(dest_pos, air_power)
                         -- minetest.log("thin atmos")
                     elseif (dest_node and dest_node.name == "vacuum:atmos_thick") then
-                        power = ctg_airs.process_leak(dest_pos, power)
+                        count, power = ctg_airs.process_leak(dest_pos, air_power)
                         -- minetest.log("thick atmos")
                     end
                     -- minetest.log("power rem: " .. power)
