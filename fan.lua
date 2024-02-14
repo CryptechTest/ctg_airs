@@ -111,7 +111,7 @@ function ctg_airs.register_machine_fan(data)
                 return
             end
 
-            if not vacuum.has_in_range(pos, "vacuum:atmos_thick", 1, 3) then
+            if not vacuum.has_in_range(pos, "vacuum:atmos_thick", 1, 2) then
                 technic.swap_node(pos, machine_node)
                 meta:set_string("infotext", machine_desc_tier .. S(" Idle - No air nearby"))
                 meta:set_int(tier .. "_EU_demand", 0)
@@ -126,7 +126,7 @@ function ctg_airs.register_machine_fan(data)
             meta:set_int(tier .. "_EU_demand", machine_demand[EU_upgrade + 1])
             technic.swap_node(pos, machine_node .. "_active")
 
-            if typename == "air_fan" and not vacuum.is_pos_in_spawn(pos) then
+            if powered and typename == "air_fan" and not vacuum.is_pos_in_spawn(pos) then
                 local count = 0;
                 local power = 0
                 local valid, dest_pos, dir = ctg_airs.get_duct_output(pos)
@@ -152,17 +152,17 @@ function ctg_airs.register_machine_fan(data)
                     end
                     -- minetest.log("power rem: " .. power)
 
-                    if (power ~= air_power and math.random(0, 3) == 0) or math.random(0, 20) == 0 then
-                        ctg_airs.process_atmos(pos)
+                    if (power ~= air_power and math.random(0, 2) == 0) or math.random(0, 3) == 0 then
+                        ctg_airs.process_atmos(pos, math.random(1, 3))
                     end
 
-                    --[[if (power ~= air_power and math.random(0, 1) == 0) then
+                    if (power ~= air_power and math.random(0, 7) == 0) then
                         minetest.sound_play("air_vent_short", {
                             pos = pos,
-                            gain = 0.15,
-                            pitch = 0.7
+                            gain = 0.015,
+                            pitch = 0.67
                         })
-                    end--]]
+                    end
                 end
             end
 

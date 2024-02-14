@@ -248,7 +248,7 @@ function ctg_airs.spawn_particle(pos, dir_x, dir_y, dir_z, acl_x, acl_y, acl_z, 
     end
 end
 
-function ctg_airs.process_atmos(pos)
+function ctg_airs.process_atmos(pos, max)
     for i = 1, 2 do
         local range = {
             x = i,
@@ -266,20 +266,21 @@ function ctg_airs.process_atmos(pos)
         })
         local data = manip:get_data()
 
-        local max = 1
         local count = 0
-        for z = pos1.z, pos2.z do
-            for y = pos1.y, pos2.y do
+        for y = pos1.y, pos2.y do
+            for z = pos1.z, pos2.z do
                 for x = pos1.x, pos2.x do
 
                     if (count >= max) then
                         break
                     end
 
-                    local index = area:index(x, y, z)
-                    if data[index] == c_atmos_thick then
-                        data[index] = c_atmos_thin
-                        count = count + 1
+                    if math.random(0, 3) == 0 then
+                        local index = area:index(x, y, z)
+                        if data[index] == c_atmos_thick then
+                            data[index] = c_atmos_thin
+                            count = count + 1
+                        end
                     end
 
                 end
@@ -289,7 +290,7 @@ function ctg_airs.process_atmos(pos)
         manip:set_data(data)
         manip:write_to_map()
 
-        if (count > 0) then
+        if (count > max) then
             break
         end
     end

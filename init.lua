@@ -16,6 +16,7 @@ dofile(default_path .. DIR_DELIM .. "fan.lua")
 dofile(default_path .. DIR_DELIM .. "nature.lua")
 dofile(default_path .. DIR_DELIM .. "crafts.lua")
 dofile(default_path .. DIR_DELIM .. "propagation.lua")
+dofile(default_path .. DIR_DELIM .. "plants.lua")
 
 function ctg_airs.register_air_handler_machine(data)
     data.tube = 1

@@ -6,8 +6,8 @@ minetest.register_abm({
     neighbors = {"ctg_airs:air_duct_vent", "ctg_airs:air_duct_vent_lite"},
     interval = 5,
     chance = 3,
-    min_y = vacuum.space_height,
-    action = vacuum.throttle(100, function(pos)
+    min_y = vacuum.vac_heights.space.start_height,
+    action = vacuum.throttle(200, function(pos)
         if vacuum.near_powered_airpump(pos, 10) then
             if vacuum.has_in_range(pos, "vacuum:atmos_thin", 1, 5) and ctg_airs.near_active_vent(pos, 3) then
                 minetest.set_node(pos, {
@@ -29,9 +29,8 @@ minetest.register_abm({
     neighbors = {"vacuum:vacuum"},
     interval = 10,
     chance = 2,
-    min_y = vacuum.space_height,
-    action = vacuum.throttle(100, function(pos)
+    min_y = vacuum.vac_heights.space.start_height,
+    action = vacuum.throttle(1000, function(pos)
         minetest.get_meta(pos):set_int("active", 0)
     end)
 })
-
