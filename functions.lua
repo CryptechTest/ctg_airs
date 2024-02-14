@@ -249,6 +249,7 @@ function ctg_airs.spawn_particle(pos, dir_x, dir_y, dir_z, acl_x, acl_y, acl_z, 
 end
 
 function ctg_airs.process_atmos(pos, max)
+    local count = 0
     for i = 1, 2 do
         local range = {
             x = i,
@@ -266,7 +267,6 @@ function ctg_airs.process_atmos(pos, max)
         })
         local data = manip:get_data()
 
-        local count = 0
         for y = pos1.y, pos2.y do
             for z = pos1.z, pos2.z do
                 for x = pos1.x, pos2.x do
@@ -275,7 +275,7 @@ function ctg_airs.process_atmos(pos, max)
                         break
                     end
 
-                    if math.random(0, 3) == 0 then
+                    if math.random(0, 4) == 0 then
                         local index = area:index(x, y, z)
                         if data[index] == c_atmos_thick then
                             data[index] = c_atmos_thin
@@ -294,6 +294,7 @@ function ctg_airs.process_atmos(pos, max)
             break
         end
     end
+    return count
 end
 
 function ctg_airs.process_leak(pos, power)
