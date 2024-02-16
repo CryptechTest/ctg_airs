@@ -202,19 +202,41 @@ local fill_atmos_near = function(pos, r)
 end
 
 function ctg_airs.spawn_particle(pos, dir_x, dir_y, dir_z, acl_x, acl_y, acl_z, lvl, time)
-    local texture = "ctg_air_vent_vapor.png"
+    --[[local texture = "ctg_air_vent_vapor.png"
     if (math.random() > 0.5) then
         texture = "ctg_air_vent_vapor.png^[transformR90]"
     end
     if (math.random() > 0.75) then
         texture = texture .. "^[colorize:#4aebf7:13"
-    end
+    end]] --
+
+    local animation = {
+        type = "vertical_frames",
+        aspect_w = 16,
+        aspect_h = 16,
+        length = (time or 6) / 3
+    }
+    local texture = {
+        name = "ctg_air_vent_vapor_anim.png",
+        blend = "alpha",
+        scale = 1,
+        alpha = 1.0,
+        alpha_tween = {1, 0.8},
+        scale_tween = {{
+            x = 1,
+            y = 1
+        }, {
+            x = 0.8,
+            y = 0.8
+        }}
+    }
+
     local prt = {
         texture = texture,
         vel = 2,
-        time = time or 6,
+        time = (time or 6),
         size = 3 + (lvl or 1),
-        glow = 3,
+        glow = math.random(2, 3),
         cols = true
     }
 
@@ -226,23 +248,48 @@ function ctg_airs.spawn_particle(pos, dir_x, dir_y, dir_z, acl_x, acl_y, acl_z, 
         local rx = dir_x * prt.vel * -math.random(0.3 * 100, 0.7 * 100) / 100
         local ry = dir_y * prt.vel * -math.random(0.3 * 100, 0.7 * 100) / 100
         local rz = dir_z * prt.vel * -math.random(0.3 * 100, 0.7 * 100) / 100
-        minetest.add_particle({
+        minetest.add_particlespawner({
+            amount = 2,
             pos = pos,
-            velocity = vector.add(v, {
+            minpos = {
+                x = 0,
+                y = 0,
+                z = 0
+            },
+            maxpos = {
+                x = 0,
+                y = 0,
+                z = 0
+            },
+            minvel = {
                 x = rx,
                 y = ry,
                 z = rz
-            }),
-            acceleration = {
+            },
+            maxvel = {
+                x = rx,
+                y = ry,
+                z = rz
+            },
+            minacc = {
+                x = acl_x,
+                y = acl_y,
+                z = acl_z
+            },
+            maxacc = {
                 x = acl_x,
                 y = acl_y + math.random(-0.008, 0),
                 z = acl_z
             },
-            expirationtime = ((math.random() / 5) + 0.3) * prt.time,
-            size = ((math.random(0.77, 0.93)) * 2 + 0.6) * prt.size,
+            time = 2,
+            minexptime = ((math.random() / 5) + 0.3) * prt.time,
+            maxexptime = ((math.random() / 5) + 0.3) * prt.time + 1,
+            minsize = ((math.random(0.77, 0.93)) * 2 + 1.6) * prt.size,
+            maxsize = ((math.random(0.77, 0.93)) * 2 + 1.6) * prt.size,
             collisiondetection = prt.cols,
             vertical = false,
-            texture = prt.texture,
+            texture = texture,
+            animation = animation,
             glow = prt.glow
         })
     end
