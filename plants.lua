@@ -13,7 +13,7 @@ minetest.register_abm({
         if math.random(0, 1) == 0 then
             vacuum.spawn_particle(pos, math.random(-0.001, 0.001), math.random(-0.001, 0.001),
                 math.random(-0.001, 0.001), math.random(-0.002, 0.002), math.random(0.001, 0.037),
-                math.random(-0.002, 0.002), math.random(2.1, 3.6), 13)
+                math.random(-0.002, 0.002), math.random(2.1, 3.6), 13, 1)
         end
     end)
 })
@@ -47,7 +47,7 @@ minetest.register_abm({
             if math.random(0, 2) > 0 then
                 vacuum.spawn_particle(node.pos, math.random(-0.001, 0.001), math.random(-0.001, 0.001),
                     math.random(-0.001, 0.001), math.random(-0.002, 0.002), math.random(0.001, 0.037),
-                    math.random(-0.002, 0.002), math.random(2.1, 3.6), 12)
+                    math.random(-0.002, 0.002), math.random(2.1, 3.6), 12, 1)
             end
         end
 

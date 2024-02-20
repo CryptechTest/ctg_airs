@@ -152,7 +152,7 @@ function ctg_airs.register_machine_fan(data)
                     end
                     -- minetest.log("power rem: " .. power)
 
-                    if (power ~= air_power and math.random(0, 2) == 0) or math.random(0, 3) == 0 then
+                    if (power ~= air_power and math.random(0, 2) > 0) or math.random(0, 1) == 0 then
                         ctg_airs.process_atmos(pos, math.random(1, 3))
                     end
 

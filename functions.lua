@@ -3,6 +3,7 @@ local S = technic.getter
 local c_vacuum = minetest.get_content_id("vacuum:vacuum")
 local c_atmos_thin = minetest.get_content_id("vacuum:atmos_thin")
 local c_atmos_thick = minetest.get_content_id("vacuum:atmos_thick")
+local c_atmos_asteroid = minetest.get_content_id("asteroid:atmos")
 local c_air = minetest.get_content_id("air")
 
 local check_node_tube = function(pos)
@@ -51,6 +52,28 @@ local function is_atmos_node(pos)
         return true
     end
     return false
+end
+
+local function get_node_cost(pos)
+    local node = minetest.get_node(pos)
+    if minetest.get_item_group(node.name, "vacuum") == 1 then
+        -- vacuum
+        return 1.0
+    end
+    local atmos = minetest.get_item_group(node.name, "atmosphere")
+    if atmos == 1 then
+        -- thin
+        return 0.2
+    end
+    if atmos == 2 then
+        -- thick
+        return 0.1
+    end
+    if atmos == 3 then
+        -- atmos
+        return 0.25
+    end
+    return 0
 end
 
 local function has_pos(tab, val)
@@ -110,10 +133,11 @@ local function traverse_atmos_local(pos_orig, pos, r)
         y = pos_orig.y,
         z = pos_orig.z
     })
-    if (dist > r) then
-        return nodes;
+    if (dist > r + 3) then
+        return nodes, 0;
     end
     table.insert(nodes, pos);
+    local costs = 0
     for i, cur_pos in pairs(shuffle(positions)) do
         local dist = vector.distance({
             x = pos_orig.x,
@@ -124,51 +148,60 @@ local function traverse_atmos_local(pos_orig, pos, r)
             y = cur_pos.y,
             z = cur_pos.z
         })
-        if (dist <= math.random(math.max(2, r - 3), r + 1)) then
-            if is_atmos_node(cur_pos) then
-                table.insert(nodes, cur_pos);
-            end
+        -- if (dist <= math.random(math.max(1, r - 1), r + 2)) then
+        if is_atmos_node(cur_pos) then
+            table.insert(nodes, cur_pos);
+            costs = costs + get_node_cost(cur_pos)
         end
+        -- end
     end
-    return nodes;
+    return nodes, costs;
 end
 
 local function traverse_atmos(trv, pos, pos_next, r, depth)
     if depth > 12 then
-        return {}
+        return {}, 0
     end
-    if #trv > 300 then
-        return {}
+    if #trv > 2000 then
+        return {}, 0
     end
     if pos_next == nil then
         pos_next = pos;
     end
     local nodes = {};
     if has_pos(trv, pos_next) then
-        return nodes;
+        return nodes, 0;
     end
     table.insert(nodes, pos_next)
     table.insert(trv, pos_next);
-    local trav_nodes = traverse_atmos_local(pos, pos_next, r);
+    local trav_nodes, costs = traverse_atmos_local(pos, pos_next, r);
     for i, pos2 in pairs(trav_nodes) do
+
+        if costs > 150 then
+            break
+        end
+
         if has_pos(trv, pos2) == false then
-            local atmoss = traverse_atmos(trv, pos, pos2, r, depth + 1);
-            for i, n in pairs(atmoss) do
-                table.insert(nodes, n)
+            if math.random(0, 1) == 0 then
+                local atmoss, cost = traverse_atmos(trv, pos, pos2, r, depth + 1);
+                for i, n in pairs(atmoss) do
+                    table.insert(nodes, n)
+                end
+                costs = costs + cost
             end
         end
 
     end
-    return nodes;
+    return nodes, costs;
 end
 
 local fill_atmos_near = function(pos, r)
     local traversed = {}
-    local nodes = traverse_atmos(traversed, pos, nil, r, 0);
+    local nodes, cost = traverse_atmos(traversed, pos, nil, r, 0);
     -- minetest.log("found " .. #nodes);
     local count = 0;
     for i, node_pos in pairs(nodes) do
-        if (count > 125) then -- 125=5x5
+        if (count > 1500) then
             break
         end
         local node = minetest.get_node(node_pos)
@@ -183,7 +216,7 @@ local fill_atmos_near = function(pos, r)
         end
         if chng then
             count = count + 1;
-            if vacc then
+            if vacc and math.random(0, 1) == 0 then
                 minetest.set_node(node_pos, {
                     name = "vacuum:atmos_thin"
                 })
@@ -194,40 +227,32 @@ local fill_atmos_near = function(pos, r)
             end
             if math.random(0, 4) <= 1 then
                 ctg_airs.spawn_particle(node_pos, math.random(-0.001, 0.001), math.random(-0.001, 0.001),
-                    math.random(-0.001, 0.001), 0, 0, 0, math.random(2, 4), 10)
+                    math.random(-0.001, 0.001), 0, 0, 0, math.random(1.8, 3), 10, 1)
             end
         end
     end
     return count
 end
 
-function ctg_airs.spawn_particle(pos, dir_x, dir_y, dir_z, acl_x, acl_y, acl_z, lvl, time)
-    --[[local texture = "ctg_air_vent_vapor.png"
-    if (math.random() > 0.5) then
-        texture = "ctg_air_vent_vapor.png^[transformR90]"
-    end
-    if (math.random() > 0.75) then
-        texture = texture .. "^[colorize:#4aebf7:13"
-    end]] --
-
+function ctg_airs.spawn_particle(pos, dir_x, dir_y, dir_z, acl_x, acl_y, acl_z, lvl, time, amount)
     local animation = {
         type = "vertical_frames",
         aspect_w = 16,
         aspect_h = 16,
-        length = (time or 6) / 3
+        length = (time or 6) + 1
     }
     local texture = {
         name = "ctg_air_vent_vapor_anim.png",
         blend = "alpha",
         scale = 1,
         alpha = 1.0,
-        alpha_tween = {1, 0.8},
+        alpha_tween = {1, 0.2},
         scale_tween = {{
-            x = 1,
-            y = 1
+            x = 0.5,
+            y = 0.5
         }, {
-            x = 0.8,
-            y = 0.8
+            x = 2.1,
+            y = 2.0
         }}
     }
 
@@ -236,7 +261,7 @@ function ctg_airs.spawn_particle(pos, dir_x, dir_y, dir_z, acl_x, acl_y, acl_z, 
         vel = 2,
         time = (time or 6),
         size = 3 + (lvl or 1),
-        glow = math.random(2, 3),
+        glow = math.random(1, 3),
         cols = true
     }
 
@@ -249,7 +274,7 @@ function ctg_airs.spawn_particle(pos, dir_x, dir_y, dir_z, acl_x, acl_y, acl_z, 
         local ry = dir_y * prt.vel * -math.random(0.3 * 100, 0.7 * 100) / 100
         local rz = dir_z * prt.vel * -math.random(0.3 * 100, 0.7 * 100) / 100
         minetest.add_particlespawner({
-            amount = 2,
+            amount = amount,
             pos = pos,
             minpos = {
                 x = 0,
@@ -282,8 +307,8 @@ function ctg_airs.spawn_particle(pos, dir_x, dir_y, dir_z, acl_x, acl_y, acl_z, 
                 z = acl_z
             },
             time = 2,
-            minexptime = ((math.random() / 5) + 0.3) * prt.time,
-            maxexptime = ((math.random() / 5) + 0.3) * prt.time + 1,
+            minexptime = prt.time - math.random(0, 2),
+            maxexptime = prt.time + math.random(0, 1),
             minsize = ((math.random(0.77, 0.93)) * 2 + 1.6) * prt.size,
             maxsize = ((math.random(0.77, 0.93)) * 2 + 1.6) * prt.size,
             collisiondetection = prt.cols,
@@ -322,9 +347,15 @@ function ctg_airs.process_atmos(pos, max)
                         break
                     end
 
-                    if math.random(0, 4) == 0 then
+                    if math.random(0, 1) == 0 then
                         local index = area:index(x, y, z)
                         if data[index] == c_atmos_thick then
+                            data[index] = c_atmos_thin
+                            count = count + 1
+                        elseif data[index] == c_air then
+                            data[index] = c_atmos_thin
+                            count = count + 1
+                        elseif data[index] == c_atmos_asteroid then
                             data[index] = c_atmos_thin
                             count = count + 1
                         end
@@ -384,10 +415,10 @@ function ctg_airs.process_leak(pos, power)
     local acl_y = 0.05 * (dir_y)
     local acl_z = 0.28 * (dir_z)
 
-    ctg_airs.spawn_particle(pos, dir_x, dir_y, dir_z, acl_x, acl_y, acl_z, 1.5, 7)
+    ctg_airs.spawn_particle(pos, dir_x, dir_y, dir_z, acl_x, acl_y, acl_z, 1.5, 7, 2)
     for i = 0, 5 do
         minetest.after(i, function()
-            ctg_airs.spawn_particle(pos, dir_x, dir_y, dir_z, acl_x, acl_y, acl_z, 1, 6)
+            ctg_airs.spawn_particle(pos, dir_x, dir_y, dir_z, acl_x, acl_y, acl_z, 1, 6, 1)
         end)
     end
 
@@ -489,13 +520,13 @@ local function process_vent2(pos, power, cost)
     end
 
     if cost > 8 or math.random(0, 1) == 0 then
-        ctg_airs.spawn_particle(pos, dir_x, dir_y, dir_z, acl_x, acl_y, acl_z, lvl, 7)
+        ctg_airs.spawn_particle(pos, dir_x, dir_y, dir_z, acl_x, acl_y, acl_z, lvl, 7, 2)
     end
 
     for i = 1, 5 + lvl + math.random(0, 3) do
         if cost > 8 or math.random(0, 1) <= 1 then
             minetest.after(i, function()
-                ctg_airs.spawn_particle(pos, dir_x, dir_y, dir_z, acl_x, acl_y, acl_z, lvl, 6)
+                ctg_airs.spawn_particle(pos, dir_x, dir_y, dir_z, acl_x, acl_y, acl_z, lvl, 6, 1)
             end)
         end
     end
@@ -541,14 +572,14 @@ local function process_vent2(pos, power, cost)
 
     local r = 3
     if cost > 9 then
-        r = 7
+        r = 10
     elseif cost > 6 then
-        r = 6
+        r = 7
     elseif cost > 3 then
         r = 4
     end
 
-    count = fill_atmos_near(dir_pos, r - dirty);
+    count = fill_atmos_near(dir_pos, r - (dirty * 2));
 
     if ((count > 0 and math.random(0, 10) == 0) and power > -5) then
         local r = math.random(0, 3)
