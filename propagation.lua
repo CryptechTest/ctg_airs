@@ -11,7 +11,7 @@ minetest.register_abm({
         if vacuum.near_powered_airpump(pos, 10) then
             if vacuum.has_in_range(pos, "vacuum:atmos_thin", 1, 5) and ctg_airs.near_active_vent(pos, 3) then
                 minetest.set_node(pos, {
-                    name = "vacuum:atmos_thick"
+                    name = "air"
                 })
             elseif ctg_airs.near_active_vent(pos, 1) then
                 minetest.set_node(pos, {

@@ -51,6 +51,9 @@ local function is_atmos_node(pos)
     if minetest.get_item_group(node.name, "vacuum") == 1 or minetest.get_item_group(node.name, "atmosphere") > 0 then
         return true
     end
+    if node.name == "air" then
+        return true
+    end
     return false
 end
 
@@ -65,8 +68,8 @@ local function get_node_cost(pos)
         -- thin
         return 0.2
     end
-    if atmos == 2 then
-        -- thick
+    if atmos == 2 or node.name == "air" then
+        -- thick/air
         return 0.1
     end
     if atmos == 3 then
@@ -213,6 +216,8 @@ local fill_atmos_near = function(pos, r)
         elseif (minetest.get_item_group(node.name, "atmosphere") == 1) or
             (minetest.get_item_group(node.name, "atmosphere") == 3) then
             chng = true;
+        elseif (minetest.get_item_group(node.name, "atmosphere") == 2) then
+            chng = true
         end
         if chng then
             count = count + 1;
@@ -222,7 +227,7 @@ local fill_atmos_near = function(pos, r)
                 })
             else
                 minetest.set_node(node_pos, {
-                    name = "vacuum:atmos_thick"
+                    name = "air"
                 })
             end
             if math.random(0, 4) <= 1 then
@@ -445,13 +450,13 @@ function ctg_airs.process_leak(pos, power)
 
                 local index = area:index(x, y, z)
                 if data[index] == c_atmos_thin then
-                    data[index] = c_atmos_thick
+                    data[index] = c_air
                     count = count + 1
                 elseif data[index] == c_vacuum then
                     data[index] = c_atmos_thin
                     count = count + 1
-                elseif data[index] == c_air then
-                    data[index] = c_atmos_thin
+                elseif data[index] == c_atmos_thick then
+                    data[index] = c_air
                     count = count + 1
                 end
 
@@ -649,7 +654,7 @@ function ctg_airs.process_junc2(junc_pos, dir, networks, power)
                     cnt, power = ctg_airs.process_leak(dest_pos, power)
                     power = power - 7
                     -- minetest.log("thin atmos")
-                elseif tube ~= nil and (dest_node and dest_node.name == "vacuum:atmos_thick") then
+                elseif tube ~= nil and (dest_node and dest_node.name == "air") then
                     networks[dest_pos] = i
                     cnt, power = ctg_airs.process_leak(dest_pos, power)
                     power = power - 5
@@ -698,7 +703,7 @@ function ctg_airs.get_duct_output(pos)
         local dest_node = minetest.get_node(dest_pos)
         local dett_dir1, dest_dir2, dest_num_con = ctg_airs.Tube:decode_param2(dest_pos, dest_node.param2)
 
-        if dest_node.name == "vacuum:atmos_thick" then
+        if dest_node.name == "air" then
             return 2, dest_pos, dest_dir2
         elseif dest_node.name == "vacuum:atmos_thin" then
             return 3, dest_pos, dest_dir2

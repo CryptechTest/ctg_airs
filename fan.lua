@@ -111,7 +111,7 @@ function ctg_airs.register_machine_fan(data)
                 return
             end
 
-            if not vacuum.has_in_range(pos, "vacuum:atmos_thick", 1, 2) then
+            if not vacuum.has_in_range(pos, "air", 1, 2) and not vacuum.has_in_range(pos, "vacuum:atmos_thick", 1, 2) then
                 technic.swap_node(pos, machine_node)
                 meta:set_string("infotext", machine_desc_tier .. S(" Idle - No air nearby"))
                 meta:set_int(tier .. "_EU_demand", 0)
@@ -146,6 +146,9 @@ function ctg_airs.register_machine_fan(data)
                     elseif (dest_node and dest_node.name == "vacuum:atmos_thin") then
                         count, power = ctg_airs.process_leak(dest_pos, air_power)
                         -- minetest.log("thin atmos")
+                    elseif (dest_node and dest_node.name == "air") then
+                        count, power = ctg_airs.process_leak(dest_pos, air_power)
+                        -- minetest.log("thick atmos")
                     elseif (dest_node and dest_node.name == "vacuum:atmos_thick") then
                         count, power = ctg_airs.process_leak(dest_pos, air_power)
                         -- minetest.log("thick atmos")

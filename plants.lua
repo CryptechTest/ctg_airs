@@ -8,7 +8,7 @@ minetest.register_abm({
     min_y = vacuum.vac_heights.space.start_height,
     action = vacuum.throttle(3000, function(pos)
         minetest.set_node(pos, {
-            name = "vacuum:atmos_thick"
+            name = "air"
         })
         if math.random(0, 1) == 0 then
             vacuum.spawn_particle(pos, math.random(-0.001, 0.001), math.random(-0.001, 0.001),
@@ -41,7 +41,7 @@ minetest.register_abm({
         local nodes = minetest.find_nodes_in_area(pos1, pos2, {"vacuum:atmos_thin", "vacuum:vacuum", "asteroid:atmos"})
         for _, node in ipairs(nodes) do
             minetest.set_node(node.pods, {
-                name = "vacuum:atmos_thick"
+                name = "air"
             })
 
             if math.random(0, 2) > 0 then

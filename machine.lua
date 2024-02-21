@@ -231,7 +231,7 @@ function ctg_airs.register_machine(data)
                         y = pos.y + i,
                         z = pos.z
                     })
-                    if node_above.name == 'vacuum:atmos_thick' then
+                    if node_above.name == 'air' then
                         ctg_airs.process_air(pos)
                         break
                     end
@@ -248,7 +248,7 @@ function ctg_airs.register_machine(data)
                 return
             end
 
-            if vacuum.has_in_range(pos, "vacuum:atmos_thick", 1, 1) == false and typename ~= "air_handler_admin" then
+            if vacuum.has_in_range(pos, "air", 1, 1) == false and typename ~= "air_handler_admin" then
                 technic.swap_node(pos, machine_node)
                 meta:set_string("infotext", machine_desc_tier .. S(" Idle - No air nearby"))
                 meta:set_int(tier .. "_EU_demand", 0)
@@ -258,7 +258,7 @@ function ctg_airs.register_machine(data)
                 return
             end
 
-            local has_air_near = vacuum.has_in_range(pos, "vacuum:atmos_thick", 1, 3);
+            local has_air_near = vacuum.has_in_range(pos, "air", 1, 3);
             local result = get_bottle(typename, inv:get_list("src"), has_air_near)
             if not result then
                 technic.swap_node(pos, machine_node)
@@ -312,7 +312,7 @@ function ctg_airs.register_machine(data)
                     elseif (dest_node and dest_node.name == "vacuum:atmos_thin") then
                         count, power = ctg_airs.process_leak(dest_pos, air_power)
                         -- minetest.log("thin atmos")
-                    elseif (dest_node and dest_node.name == "vacuum:atmos_thick") then
+                    elseif (dest_node and dest_node.name == "air") then
                         count, power = ctg_airs.process_leak(dest_pos, air_power)
                         -- minetest.log("thick atmos")
                     end
