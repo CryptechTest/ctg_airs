@@ -162,7 +162,7 @@ local function traverse_atmos_local(pos_orig, pos, r)
 end
 
 local function traverse_atmos(trv, pos, pos_next, r, depth)
-    if depth > 14 then
+    if depth > 15 then
         return {}, 0
     end
     if #trv > 2500 then
@@ -205,7 +205,7 @@ local fill_atmos_near = function(pos, r)
     -- minetest.log("found " .. #nodes);
     local count = 0;
     for i, node_pos in pairs(nodes) do
-        if (count > 1500) then
+        if (count > 2000) then
             break
         end
         local node = minetest.get_node(node_pos)
@@ -222,7 +222,7 @@ local fill_atmos_near = function(pos, r)
         end
         if chng then
             count = count + 1;
-            if vacc and math.random(0, 2) == 0 then
+            if vacc and math.random(0, 4) == 0 then
                 minetest.set_node(node_pos, {
                     name = "vacuum:atmos_thin"
                 })
@@ -578,11 +578,11 @@ local function process_vent2(pos, power, cost)
 
     local r = 3
     if cost > 9 then
-        r = 10
+        r = 11
     elseif cost > 6 then
-        r = 7
+        r = 8
     elseif cost > 3 then
-        r = 4
+        r = 5
     end
 
     count = fill_atmos_near(dir_pos, r - (dirty * 2));
@@ -606,7 +606,7 @@ function ctg_airs.process_vent(pos, power)
     if not pos then
         return 0, power
     end
-    if math.random(0, 15) <= 1 then
+    if math.random(0, 20) <= 1 then
         return 0, power
     end
     local node = minetest.get_node(pos)
