@@ -19,8 +19,8 @@ local function round(v)
     return math.floor(v + 0.5)
 end
 
-function update_formspec3(data, running, enabled)
-    return update_formspec2(data, running, enabled, 0, 0)
+function update_formspec3(data, meta, running, enabled)
+    return update_formspec2(data, meta, running, enabled, 0, 0)
 end
 
 -- check if enabled
@@ -56,7 +56,7 @@ function ctg_airs.register_machine_fan(data)
         active_groups[k] = v
     end
 
-    local formspec = update_formspec3(data, false, false)
+    local formspec = update_formspec3(data, nil, false, false)
     local tube = technic.new_default_tube()
     if data.can_insert then
         tube.can_insert = data.can_insert
@@ -106,7 +106,7 @@ function ctg_airs.register_machine_fan(data)
                 meta:set_string("infotext", machine_desc_tier .. S(" Disabled"))
                 meta:set_int(tier .. "_EU_demand", 0)
                 meta:set_int("src_time", 0)
-                local formspec = update_formspec3(data, false, enabled)
+                local formspec = update_formspec3(data, meta, false, enabled)
                 meta:set_string("formspec", formspec)
                 return
             end
@@ -116,12 +116,12 @@ function ctg_airs.register_machine_fan(data)
                 meta:set_string("infotext", machine_desc_tier .. S(" Idle - No air nearby"))
                 meta:set_int(tier .. "_EU_demand", 0)
                 meta:set_int("src_time", 0)
-                local formspec = update_formspec3(data, false, enabled)
+                local formspec = update_formspec3(data, meta, false, enabled)
                 meta:set_string("formspec", formspec)
                 return
             end
 
-            local formspec = update_formspec3(data, true, enabled)
+            local formspec = update_formspec3(data, meta, true, enabled)
             meta:set_string("formspec", formspec)
             meta:set_int(tier .. "_EU_demand", machine_demand[EU_upgrade + 1])
             technic.swap_node(pos, machine_node .. "_active")
@@ -254,7 +254,7 @@ function ctg_airs.register_machine_fan(data)
                     enabled = true
                 end
             end
-            local formspec = update_formspec3(data, false, enabled)
+            local formspec = update_formspec3(data, meta, false, enabled)
             meta:set_string("formspec", formspec .. form_buttons)
         end,
         mesecons = {
@@ -359,7 +359,7 @@ function ctg_airs.register_machine_fan(data)
                     enabled = true
                 end
             end
-            local formspec = update_formspec3(data, false, enabled)
+            local formspec = update_formspec3(data, meta, false, enabled)
             meta:set_string("formspec", formspec .. form_buttons)
         end,
         mesecons = {

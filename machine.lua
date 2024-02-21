@@ -19,11 +19,11 @@ local function round(v)
     return math.floor(v + 0.5)
 end
 
-function update_formspec(data, running, enabled, size)
-    return update_formspec2(data, running, enabled, size, 0)
+function update_formspec(data, meta, running, enabled, size)
+    return update_formspec2(data, meta, running, enabled, size, 0)
 end
 
-function update_formspec2(data, running, enabled, size, percent)
+function update_formspec2(data, meta, running, enabled, size, percent)
     local input_size = size
     local machine_desc = data.machine_desc
     local typename = data.typename
@@ -38,6 +38,12 @@ function update_formspec2(data, running, enabled, size, percent)
             btnName = btnName .. "<Disabled>"
         end
 
+        local lag_stat = ""
+        if meta then
+            local lag = meta:get_string("time_lag")
+            lag_stat = "label[4,0.5;" .. lag .. " ms" .. "]"
+        end
+
         local image = "bottler_gauge.png"
         if (running) then
             image = "bottler_gauge.png"
@@ -45,7 +51,7 @@ function update_formspec2(data, running, enabled, size, percent)
         formspec = "size[8,9;]" .. "list[current_name;src;" .. (4 - input_size) .. ",1.5;" .. input_size .. ",1;]" ..
                        "list[current_name;dst;5,1;2,2;]" .. "list[current_player;main;0,5;8,4;]" .. "label[0,0;" ..
                        machine_desc:format(tier) .. "]" .. -- "image[4,1;1,1;".. image .."]"..
-        "image[4,1;1,1;" .. image .. "]" .. -- "animated_image[4,1;1,1;an_img;recycler_front_active.png;4;800;1]"..
+        "image[4,1;1,1;" .. image .. "]" .. lag_stat .. -- "animated_image[4,1;1,1;an_img;recycler_front_active.png;4;800;1]"..
         "image[4,2.0;1,1;gui_furnace_arrow_bg.png^[lowpart:" .. tostring(percent) ..
                        ":gui_furnace_arrow_fg.png^[transformR270]" .. "listring[current_name;dst]" ..
                        "listring[current_player;main]" .. "listring[current_name;src]" ..
@@ -58,12 +64,18 @@ function update_formspec2(data, running, enabled, size, percent)
             btnName = btnName .. "<Disabled>"
         end
 
+        local lag_stat = ""
+        if meta then
+            local lag = meta:get_string("time_lag")
+            lag_stat = "label[4,0.6;" .. lag .. " ms" .. "]"
+        end
+
         local image = "ctg_fan_icon.png"
         if (running) then
             image = "ctg_fan_on_icon.png"
         end
         formspec = "size[8,9;]" .. "list[current_player;main;0,5;8,4;]" .. "label[0,0;" .. machine_desc:format(tier) ..
-                       "]" .. "image[4,1;1,1;" .. image .. "]" .. "listring[current_player;main]" ..
+                       "]" .. "image[4,1;1,1;" .. image .. "]" .. lag_stat .. "listring[current_player;main]" ..
                        "listring[current_player;main]" .. "button[3,3;4,1;toggle;" .. btnName .. "]"
     end
 
@@ -171,7 +183,7 @@ function ctg_airs.register_machine(data)
         active_groups[k] = v
     end
 
-    local formspec = update_formspec(data, false, false, input_size)
+    local formspec = update_formspec(data, nil, false, false, input_size)
     local tube = technic.new_default_tube()
     if data.can_insert then
         tube.can_insert = data.can_insert
@@ -243,7 +255,7 @@ function ctg_airs.register_machine(data)
                 meta:set_string("infotext", machine_desc_tier .. S(" Disabled"))
                 meta:set_int(tier .. "_EU_demand", 0)
                 -- meta:set_int("src_time", 0)
-                local formspec = update_formspec(data, false, enabled, input_size)
+                local formspec = update_formspec(data, meta, false, enabled, input_size)
                 meta:set_string("formspec", formspec .. form_buttons)
                 return
             end
@@ -253,7 +265,7 @@ function ctg_airs.register_machine(data)
                 meta:set_string("infotext", machine_desc_tier .. S(" Idle - No air nearby"))
                 meta:set_int(tier .. "_EU_demand", 0)
                 -- meta:set_int("src_time", 0)
-                local formspec = update_formspec(data, false, enabled, input_size)
+                local formspec = update_formspec(data, meta, false, enabled, input_size)
                 meta:set_string("formspec", formspec .. form_buttons)
                 return
             end
@@ -265,13 +277,13 @@ function ctg_airs.register_machine(data)
                 meta:set_string("infotext", machine_desc_tier .. S(" Idle - No air bottles"))
                 meta:set_int(tier .. "_EU_demand", 0)
                 meta:set_int("src_time", 0)
-                local formspec = update_formspec(data, false, enabled, input_size)
+                local formspec = update_formspec(data, meta, false, enabled, input_size)
                 meta:set_string("formspec", formspec .. form_buttons)
                 return
             end
 
             local item_percent = (math.floor(meta:get_int("src_time") / round(result.time * 250) * 100))
-            local formspec = update_formspec2(data, true, enabled, input_size, item_percent)
+            local formspec = update_formspec2(data, meta, true, enabled, input_size, item_percent)
             meta:set_string("formspec", formspec .. form_buttons)
             meta:set_int(tier .. "_EU_demand", machine_demand[EU_upgrade + 1])
             if (item_percent > 20) then
@@ -291,6 +303,8 @@ function ctg_airs.register_machine(data)
             meta:set_int("vent_tick", meta:get_int("vent_tick") - 1);
             if meta:get_int("vent_tick") <= 0 and (typename == "air_handler" or typename == "air_handler_admin") and
                 not vacuum.is_pos_in_spawn(pos) then
+
+                local t0_us = minetest.get_us_time();
 
                 local count = 0;
                 local power = air_power or 0
@@ -319,11 +333,11 @@ function ctg_airs.register_machine(data)
                     -- minetest.log("power rem: " .. power)
 
                     if count <= 1 then
-                        meta:set_int("vent_tick", math.random(1, 6));
+                        meta:set_int("vent_tick", math.random(1, 3));
                     elseif count <= 27 then
-                        meta:set_int("vent_tick", math.random(0, 5));
+                        meta:set_int("vent_tick", math.random(1, 2));
                     elseif count <= 125 then
-                        meta:set_int("vent_tick", math.random(0, 2));
+                        meta:set_int("vent_tick", math.random(1, 2));
                     else
                         meta:set_int("vent_tick", 1);
                     end
@@ -342,6 +356,17 @@ function ctg_airs.register_machine(data)
                             pitch = math.random(0.57, 0.72)
                         })
                     end
+                end
+
+                local t1_us = minetest.get_us_time();
+                local elapsed_time_in_seconds = (t1_us - t0_us) / 1000000.0;
+                local elapsed_time_in_milliseconds = elapsed_time_in_seconds * 1000;
+                meta:set_string("time_lag", tostring(elapsed_time_in_milliseconds));
+
+                if elapsed_time_in_milliseconds >= 30 then
+                    meta:set_int("vent_tick", meta:get_int("vent_tick") + 2);
+                elseif elapsed_time_in_milliseconds >= 10 then
+                    meta:set_int("vent_tick", meta:get_int("vent_tick") + 1);
                 end
             end
 
@@ -462,7 +487,7 @@ function ctg_airs.register_machine(data)
                     enabled = true
                 end
             end
-            local formspec = update_formspec(data, false, enabled, input_size)
+            local formspec = update_formspec(data, meta, false, enabled, input_size)
             meta:set_string("formspec", formspec .. form_buttons)
         end,
         mesecons = {

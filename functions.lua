@@ -165,7 +165,7 @@ local function traverse_atmos(trv, pos, pos_next, r, depth)
     if depth > 15 then
         return {}, 0
     end
-    if #trv > 2500 then
+    if #trv > 3500 then
         return {}, 0
     end
     if pos_next == nil then
@@ -186,7 +186,8 @@ local function traverse_atmos(trv, pos, pos_next, r, depth)
         end
 
         if has_pos(trv, pos2) == false then
-            if math.random(0, 7) > 0 then
+            local node2 = minetest.get_node(pos2)
+            if (math.random(0, 1) == 0 and node2.name == "air") or math.random(0, 3) > 0 then
                 local atmoss, cost = traverse_atmos(trv, pos, pos2, r, depth + 1);
                 for i, n in pairs(atmoss) do
                     table.insert(nodes, n)
@@ -205,7 +206,7 @@ local fill_atmos_near = function(pos, r)
     -- minetest.log("found " .. #nodes);
     local count = 0;
     for i, node_pos in pairs(nodes) do
-        if (count > 2000) then
+        if (count > 1000) then
             break
         end
         local node = minetest.get_node(node_pos)
@@ -224,7 +225,7 @@ local fill_atmos_near = function(pos, r)
             count = count + 1;
             if vacc and math.random(0, 4) == 0 then
                 minetest.set_node(node_pos, {
-                    name = "vacuum:atmos_thin"
+                    name = "vacuum:atmos_thick"
                 })
             else
                 minetest.set_node(node_pos, {
@@ -488,6 +489,8 @@ local function process_vent2(pos, power, cost)
         return 0, power
     end
 
+    local t0_us = minetest.get_us_time();
+
     minetest.get_meta(pos):set_int("active", 1)
 
     local node = minetest.get_node(pos)
@@ -598,6 +601,19 @@ local function process_vent2(pos, power, cost)
         end)
     end
 
+    local t1_us = minetest.get_us_time();
+    local elapsed_time_in_seconds = (t1_us - t0_us) / 1000000.0;
+    local elapsed_time_in_milliseconds = elapsed_time_in_seconds * 1000;
+    -- minetest.get_meta(pos):set_string("time_lag", tostring(elapsed_time_in_milliseconds));
+
+    if node.name == "ctg_airs:air_duct_vent" then
+        minetest.get_meta(pos):set_string("infotext",
+            S("Vent" .. " - " .. tostring(elapsed_time_in_milliseconds) .. " ms"))
+    elseif node.name == "ctg_airs:air_duct_vent_lite" then
+        minetest.get_meta(pos):set_string("infotext",
+            S("Lite Vent" .. " - " .. tostring(elapsed_time_in_milliseconds) .. " ms"))
+    end
+
     -- minetest.log("making atmos..")
     return count, power
 end
@@ -606,7 +622,7 @@ function ctg_airs.process_vent(pos, power)
     if not pos then
         return 0, power
     end
-    if math.random(0, 20) <= 1 then
+    if math.random(0, 3) <= 0 then
         return 0, power
     end
     local node = minetest.get_node(pos)
