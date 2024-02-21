@@ -162,10 +162,10 @@ local function traverse_atmos_local(pos_orig, pos, r)
 end
 
 local function traverse_atmos(trv, pos, pos_next, r, depth)
-    if depth > 12 then
+    if depth > 14 then
         return {}, 0
     end
-    if #trv > 2000 then
+    if #trv > 2500 then
         return {}, 0
     end
     if pos_next == nil then
@@ -180,7 +180,7 @@ local function traverse_atmos(trv, pos, pos_next, r, depth)
     local trav_nodes, costs = traverse_atmos_local(pos, pos_next, r);
     for i, pos2 in pairs(trav_nodes) do
 
-        if costs > 150 then
+        if costs > 175 then
             break
         end
 
