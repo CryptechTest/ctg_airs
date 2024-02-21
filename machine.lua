@@ -39,9 +39,21 @@ function update_formspec2(data, meta, running, enabled, size, percent)
         end
 
         local lag_stat = ""
-        if meta then
+        if meta ~= nil then
             local lag = meta:get_string("time_lag")
-            lag_stat = "label[4,0.5;" .. lag .. " ms" .. "]"
+            local clag = lag .. " ms"
+            if lag and tonumber(lag, 10) ~= nil then
+                if tonumber(lag, 10) >= 25 then
+                    clag = minetest.colorize('#ff3b21', lag .. " ms")
+                elseif tonumber(lag, 10) >= 10 then
+                    clag = minetest.colorize('#ffcb21', lag .. " ms")
+                elseif tonumber(lag, 10) < 1 then
+                    clag = minetest.colorize('#25ff21', lag .. " ms")
+                else
+                    clag = minetest.colorize('#21ffb5', lag .. " ms")
+                end
+            end
+            lag_stat = "label[4,0.5;" .. clag .. "]"
         end
 
         local image = "bottler_gauge.png"
@@ -65,9 +77,21 @@ function update_formspec2(data, meta, running, enabled, size, percent)
         end
 
         local lag_stat = ""
-        if meta then
+        if meta ~= nil then
             local lag = meta:get_string("time_lag")
-            lag_stat = "label[4,0.6;" .. lag .. " ms" .. "]"
+            local clag = lag .. " ms"
+            if lag and tonumber(lag, 10) ~= nil then
+                if tonumber(lag, 10) >= 25 then
+                    clag = minetest.colorize('#ff3b21', lag .. " ms")
+                elseif tonumber(lag, 10) >= 10 then
+                    clag = minetest.colorize('#ffcb21', lag .. " ms")
+                elseif tonumber(lag, 10) < 1 then
+                    clag = minetest.colorize('#25ff21', lag .. " ms")
+                else
+                    clag = minetest.colorize('#21ffb5', lag .. " ms")
+                end
+            end
+            lag_stat = "label[4,0.5;" .. clag .. "]"
         end
 
         local image = "ctg_fan_icon.png"
@@ -208,6 +232,10 @@ function ctg_airs.register_machine(data)
             return
         end
 
+        if not meta:get_string("time_lag") then
+            meta:set_string("time_lag", "0")
+        end
+
         if not meta:get_int("enabled") then
             meta:set_int("enabled", 1)
             return
@@ -333,9 +361,9 @@ function ctg_airs.register_machine(data)
                     -- minetest.log("power rem: " .. power)
 
                     if count <= 1 then
-                        meta:set_int("vent_tick", math.random(1, 3));
+                        meta:set_int("vent_tick", math.random(1, 4));
                     elseif count <= 27 then
-                        meta:set_int("vent_tick", math.random(1, 2));
+                        meta:set_int("vent_tick", math.random(1, 3));
                     elseif count <= 125 then
                         meta:set_int("vent_tick", math.random(1, 2));
                     else
@@ -364,6 +392,8 @@ function ctg_airs.register_machine(data)
                 meta:set_string("time_lag", tostring(elapsed_time_in_milliseconds));
 
                 if elapsed_time_in_milliseconds >= 30 then
+                    meta:set_int("vent_tick", meta:get_int("vent_tick") + 3);
+                elseif elapsed_time_in_milliseconds >= 20 then
                     meta:set_int("vent_tick", meta:get_int("vent_tick") + 2);
                 elseif elapsed_time_in_milliseconds >= 10 then
                     meta:set_int("vent_tick", meta:get_int("vent_tick") + 1);

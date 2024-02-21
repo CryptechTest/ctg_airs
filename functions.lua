@@ -181,13 +181,13 @@ local function traverse_atmos(trv, pos, pos_next, r, depth)
     local trav_nodes, costs = traverse_atmos_local(pos, pos_next, r);
     for i, pos2 in pairs(trav_nodes) do
 
-        if costs > 250 then
+        if costs > 150 then
             break
         end
 
         if has_pos(trv, pos2) == false then
             local node2 = minetest.get_node(pos2)
-            if (math.random(0, 1) == 0 and node2.name == "air") or math.random(0, 3) > 0 then
+            if (math.random(0, 3) == 0 and node2.name == "air") or (math.random(0, 3) > 0 and node2.name ~= "air") then
                 local atmoss, cost = traverse_atmos(trv, pos, pos2, r, depth + 1);
                 for i, n in pairs(atmoss) do
                     table.insert(nodes, n)
@@ -491,6 +491,12 @@ local function process_vent2(pos, power, cost)
 
     local t0_us = minetest.get_us_time();
 
+    local t2_us = minetest.get_meta(pos):get_int("time_run")
+    local elapsed_time_in_seconds = (t0_us - t2_us) / 1000000.0;
+    if elapsed_time_in_seconds < 3 then
+        return 0, power - 1
+    end
+
     minetest.get_meta(pos):set_int("active", 1)
 
     local node = minetest.get_node(pos)
@@ -551,7 +557,7 @@ local function process_vent2(pos, power, cost)
                 })
             end)
         end
-        return cost
+        return cost, power
     end
 
     if string.match(node.name, "duct_vent") then
@@ -604,14 +610,23 @@ local function process_vent2(pos, power, cost)
     local t1_us = minetest.get_us_time();
     local elapsed_time_in_seconds = (t1_us - t0_us) / 1000000.0;
     local elapsed_time_in_milliseconds = elapsed_time_in_seconds * 1000;
+
     -- minetest.get_meta(pos):set_string("time_lag", tostring(elapsed_time_in_milliseconds));
+
+    minetest.get_meta(pos):set_int("time_run", t1_us);
 
     if node.name == "ctg_airs:air_duct_vent" then
         minetest.get_meta(pos):set_string("infotext",
             S("Vent" .. " - " .. tostring(elapsed_time_in_milliseconds) .. " ms"))
+    elseif node.name == "ctg_airs:air_duct_vent_dirty" then
+        minetest.get_meta(pos):set_string("infotext",
+            S("Dirty Vent" .. " - " .. tostring(elapsed_time_in_milliseconds) .. " ms"))
     elseif node.name == "ctg_airs:air_duct_vent_lite" then
         minetest.get_meta(pos):set_string("infotext",
             S("Lite Vent" .. " - " .. tostring(elapsed_time_in_milliseconds) .. " ms"))
+    elseif node.name == "ctg_airs:air_duct_vent_lite_dirty" then
+        minetest.get_meta(pos):set_string("infotext", S(
+            "Dirty Lite Vent" .. " - " .. tostring(elapsed_time_in_milliseconds) .. " ms"))
     end
 
     -- minetest.log("making atmos..")
@@ -713,7 +728,7 @@ function ctg_airs.get_duct_output(pos)
 
     -- minetest.log(tostring(dir1) .. " " .. tostring(dir2) .. " " .. tostring(num_con))
 
-    local loc = minetest.get_meta(pos):get_string("infotext")
+    -- local loc = minetest.get_meta(pos):get_string("infotext")
 
     if (dest_pos) then
         -- local dest_pos = minetest.string_to_pos(loc)

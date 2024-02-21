@@ -81,6 +81,10 @@ function ctg_airs.register_machine_fan(data)
             return
         end
 
+        if not meta:get_string("time_lag") then
+            meta:set_string("time_lag", "0")
+        end
+
         if not meta:get_int("enabled") then
             meta:set_int("enabled", 0)
             return
