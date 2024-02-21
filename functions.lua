@@ -61,16 +61,16 @@ local function get_node_cost(pos)
     local node = minetest.get_node(pos)
     if minetest.get_item_group(node.name, "vacuum") == 1 then
         -- vacuum
-        return 1.0
+        return 0.2
     end
     local atmos = minetest.get_item_group(node.name, "atmosphere")
     if atmos == 1 then
         -- thin
-        return 0.3
+        return 0.1
     end
     if atmos == 2 or node.name == "air" then
         -- thick/air
-        return 0.2
+        return 1
     end
     if atmos == 3 then
         -- atmos
@@ -136,7 +136,7 @@ local function traverse_atmos_local(pos_orig, pos, r)
         y = pos_orig.y,
         z = pos_orig.z
     })
-    if (dist > r + 3) then
+    if (dist > r + 1) then
         return nodes, 0;
     end
     table.insert(nodes, pos);
@@ -165,7 +165,7 @@ local function traverse_atmos(trv, pos, pos_next, r, depth)
     if depth > 12 then
         return {}, 0
     end
-    if #trv > 3000 then
+    if #trv > 2500 then
         return {}, 0
     end
     if pos_next == nil then
@@ -175,17 +175,18 @@ local function traverse_atmos(trv, pos, pos_next, r, depth)
     if has_pos(trv, pos_next) then
         return nodes, 0;
     end
+
     table.insert(nodes, pos_next)
     table.insert(trv, pos_next);
     local trav_nodes, costs = traverse_atmos_local(pos, pos_next, r);
     for i, pos2 in pairs(trav_nodes) do
 
-        if costs > 125 then
+        if costs > 250 then
             break
         end
 
         if has_pos(trv, pos2) == false then
-            if math.random(0, 2) > 0 then
+            if math.random(0, 5) > 0 then
                 local atmoss, cost = traverse_atmos(trv, pos, pos2, r, depth + 1);
                 for i, n in pairs(atmoss) do
                     table.insert(nodes, n)
