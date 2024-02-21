@@ -126,7 +126,7 @@ minetest.register_node("ctg_airs:air_duct_A2", {
 
 minetest.register_node("ctg_airs:air_duct_junc", {
     description = S("Air Ducting Junction"),
-    _tt_help = S("Air Register Cost 2"),
+    _tt_help = S("Air Register Cost 3"),
     tiles = {"ctg_air_duct_junc.png"},
     paramtype2 = "facedir",
     --sunlight_propagates = true,

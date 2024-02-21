@@ -162,7 +162,7 @@ local function traverse_atmos_local(pos_orig, pos, r)
 end
 
 local function traverse_atmos(trv, pos, pos_next, r, depth)
-    if depth > 12 then
+    if depth > 14 then
         return {}, 0
     end
     if #trv > 2500 then
@@ -186,7 +186,7 @@ local function traverse_atmos(trv, pos, pos_next, r, depth)
         end
 
         if has_pos(trv, pos2) == false then
-            if math.random(0, 5) > 0 then
+            if math.random(0, 7) > 0 then
                 local atmoss, cost = traverse_atmos(trv, pos, pos2, r, depth + 1);
                 for i, n in pairs(atmoss) do
                     table.insert(nodes, n)
@@ -222,9 +222,9 @@ local fill_atmos_near = function(pos, r)
         end
         if chng then
             count = count + 1;
-            if vacc and math.random(0, 1) == 0 then
+            if vacc and math.random(0, 2) == 0 then
                 minetest.set_node(node_pos, {
-                    name = "vacuum:atmos_thick"
+                    name = "vacuum:atmos_thin"
                 })
             else
                 minetest.set_node(node_pos, {
