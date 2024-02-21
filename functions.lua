@@ -66,11 +66,11 @@ local function get_node_cost(pos)
     local atmos = minetest.get_item_group(node.name, "atmosphere")
     if atmos == 1 then
         -- thin
-        return 0.2
+        return 0.3
     end
     if atmos == 2 or node.name == "air" then
         -- thick/air
-        return 0.1
+        return 0.2
     end
     if atmos == 3 then
         -- atmos
@@ -162,10 +162,10 @@ local function traverse_atmos_local(pos_orig, pos, r)
 end
 
 local function traverse_atmos(trv, pos, pos_next, r, depth)
-    if depth > 14 then
+    if depth > 12 then
         return {}, 0
     end
-    if #trv > 2500 then
+    if #trv > 3000 then
         return {}, 0
     end
     if pos_next == nil then
@@ -180,12 +180,12 @@ local function traverse_atmos(trv, pos, pos_next, r, depth)
     local trav_nodes, costs = traverse_atmos_local(pos, pos_next, r);
     for i, pos2 in pairs(trav_nodes) do
 
-        if costs > 175 then
+        if costs > 125 then
             break
         end
 
         if has_pos(trv, pos2) == false then
-            if math.random(0, 1) == 0 then
+            if math.random(0, 2) > 0 then
                 local atmoss, cost = traverse_atmos(trv, pos, pos2, r, depth + 1);
                 for i, n in pairs(atmoss) do
                     table.insert(nodes, n)
@@ -223,7 +223,7 @@ local fill_atmos_near = function(pos, r)
             count = count + 1;
             if vacc and math.random(0, 1) == 0 then
                 minetest.set_node(node_pos, {
-                    name = "vacuum:atmos_thin"
+                    name = "vacuum:atmos_thick"
                 })
             else
                 minetest.set_node(node_pos, {
