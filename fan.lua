@@ -127,6 +127,7 @@ function ctg_airs.register_machine_fan(data)
             technic.swap_node(pos, machine_node .. "_active")
 
             if powered and typename == "air_fan" and not vacuum.is_pos_in_spawn(pos) then
+                local t0_us = minetest.get_us_time();
                 local count = 0;
                 local power = 0
                 local valid, dest_pos, dir = ctg_airs.get_duct_output(pos)
@@ -167,6 +168,11 @@ function ctg_airs.register_machine_fan(data)
                         })
                     end
                 end
+
+                local t1_us = minetest.get_us_time();
+                local elapsed_time_in_seconds = (t1_us - t0_us) / 1000000.0;
+                local elapsed_time_in_milliseconds = elapsed_time_in_seconds * 1000;
+                meta:set_string("time_lag", tostring(elapsed_time_in_milliseconds));
             end
 
             meta:set_string("infotext", machine_desc_tier .. S(" Active"))
