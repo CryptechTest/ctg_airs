@@ -56,9 +56,23 @@ function update_formspec2(data, meta, running, enabled, size, percent)
             lag_stat = "label[4,0.5;" .. clag .. "]"
         end
 
-        local image = "bottler_gauge.png"
-        if (running) then
-            image = "bottler_gauge.png"
+        local image = "ctg_gauge_0.png"
+        if running then
+            local lag = meta:get_string("time_lag")
+            if lag and tonumber(lag, 10) ~= nil then
+                local lagg = tonumber(lag, 10);
+                if lagg > 30 then
+                    image = "ctg_gauge_1.png"
+                elseif lagg > 20 then
+                    image = "ctg_gauge_2.png"
+                elseif lagg > 10 then
+                    image = "ctg_gauge_3.png"
+                elseif lagg > 3 then
+                    image = "ctg_gauge_4.png"
+                else
+                    image = "ctg_gauge_5.png"
+                end
+            end
         end
         formspec = "size[8,9;]" .. "list[current_name;src;" .. (4 - input_size) .. ",1.5;" .. input_size .. ",1;]" ..
                        "list[current_name;dst;5,1;2,2;]" .. "list[current_player;main;0,5;8,4;]" .. "label[0,0;" ..
