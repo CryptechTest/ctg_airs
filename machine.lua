@@ -302,7 +302,8 @@ function ctg_airs.register_machine(data)
                 return
             end
 
-            if vacuum.has_in_range(pos, {"air", "technic:dummy_light_source"}, 1, 1) == false and typename ~=
+            if vacuum.has_in_range(pos, "air", 1, 1) == false and
+                vacuum.has_in_range(pos, "technic:dummy_light_source", 1, 1) == false and typename ~=
                 "air_handler_admin" then
                 technic.swap_node(pos, machine_node)
                 meta:set_string("infotext", machine_desc_tier .. S(" Idle - No air nearby"))
