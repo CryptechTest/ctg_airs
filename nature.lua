@@ -12,7 +12,7 @@ local function process_leaves(pos)
     local acl_x = 0.2 * (dir_x)
     local acl_z = 0.2 * (dir_z)
 
-    spawn_particle(pos, dir_x, dir_z, acl_x, acl_z)
+    ctg_airs.spawn_particle(pos, dir_x, dir_z, acl_x, acl_z)
 
     local count = 0
 

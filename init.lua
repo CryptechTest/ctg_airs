@@ -36,7 +36,7 @@ function ctg_airs.register_air_fan_machine(data)
     data.machine_name = "air_fan"
     -- data.can_insert = true
     data.typename = "air_fan"
-    data.machine_desc = "Air Fan"
+    data.machine_desc = data.tier .. " Air Fan"
     ctg_airs.register_machine_fan(data)
 end
 
