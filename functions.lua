@@ -54,6 +54,9 @@ local function is_atmos_node(pos)
     if node.name == "air" then
         return true
     end
+    if node.name == "technic:dummy_light_source" then
+        return true
+    end
     return false
 end
 
@@ -75,6 +78,9 @@ local function get_node_cost(pos)
     if atmos == 3 then
         -- atmos
         return 0.25
+    end
+    if node.name == "technic:dummy_light_source" then
+        return 0.5
     end
     return 0
 end
@@ -181,13 +187,13 @@ local function traverse_atmos(trv, pos, pos_next, r, depth)
     local trav_nodes, costs = traverse_atmos_local(pos, pos_next, r);
     for i, pos2 in pairs(trav_nodes) do
 
-        if costs > 150 then
+        if costs > 225 then
             break
         end
 
         if has_pos(trv, pos2) == false then
             local node2 = minetest.get_node(pos2)
-            if (math.random(0, 3) == 0 and node2.name == "air") or (math.random(0, 3) > 0 and node2.name ~= "air") then
+            if (math.random(0, 2) == 0 and node2.name == "air") or (math.random(0, 3) > 0 and node2.name ~= "air") then
                 local atmoss, cost = traverse_atmos(trv, pos, pos2, r, depth + 1);
                 for i, n in pairs(atmoss) do
                     table.insert(nodes, n)
