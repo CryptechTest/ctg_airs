@@ -1,3 +1,4 @@
+local S = minetest.get_translator("ctg_airs")
 
 minetest.register_craftitem("ctg_airs:air_filter_basic", {
 	description = S("Basic Air Filter"),
