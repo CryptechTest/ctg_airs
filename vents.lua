@@ -2,7 +2,7 @@ local S = minetest.get_translator(minetest.get_current_modname())
 
 minetest.register_node("ctg_airs:air_duct_vent", {
     description = S("Air Vent"),
-    _tt_help = S("Air Register Cost 10"),
+    _tt_help = S("Register Cost 10"),
     -- up, down, right, left, back, front
     tiles = {"ctg_air_duct.png", "ctg_air_duct.png", "ctg_air_duct.png", "ctg_air_duct.png", "ctg_air_duct.png",
              "ctg_air_duct_vent.png"},
@@ -14,7 +14,7 @@ minetest.register_node("ctg_airs:air_duct_vent", {
         level = 1,
         metal = 1,
         duct = 3,
-        vent = 8,
+        vent = 10,
         vent_dirty = 0
     },
     is_ground_content = false,
@@ -35,7 +35,7 @@ minetest.register_node("ctg_airs:air_duct_vent", {
 
 minetest.register_node("ctg_airs:air_duct_vent_dirty", {
     description = S("Dirty Air Vent"),
-    _tt_help = S("Air Register Cost 12"),
+    _tt_help = S("Register Cost 12"),
     -- up, down, right, left, back, front
     tiles = {"ctg_air_duct.png", "ctg_air_duct.png", "ctg_air_duct.png", "ctg_air_duct.png", "ctg_air_duct.png",
              "ctg_air_duct_vent_dirty.png"},
@@ -47,7 +47,7 @@ minetest.register_node("ctg_airs:air_duct_vent_dirty", {
         level = 1,
         metal = 1,
         duct = 3,
-        vent = 8,
+        vent = 10,
         vent_dirty = 2
     },
     is_ground_content = false,
@@ -83,7 +83,7 @@ minetest.register_node("ctg_airs:air_duct_vent_dirty", {
 
 minetest.register_node("ctg_airs:air_duct_vent_lite", {
     description = S("Air Vent Lite"),
-    _tt_help = S("Air Register Cost 7"),
+    _tt_help = S("Register Cost 7"),
     -- up, down, right, left, back, front
     tiles = {"ctg_air_duct.png", "ctg_air_duct.png", "ctg_air_duct.png", "ctg_air_duct.png", "ctg_air_duct.png",
              "ctg_air_duct_vent_lite.png"},
@@ -95,7 +95,7 @@ minetest.register_node("ctg_airs:air_duct_vent_lite", {
         level = 1,
         metal = 1,
         duct = 3,
-        vent = 5,
+        vent = 7,
         vent_dirty = 0
     },
     is_ground_content = false,
@@ -116,7 +116,7 @@ minetest.register_node("ctg_airs:air_duct_vent_lite", {
 
 minetest.register_node("ctg_airs:air_duct_vent_lite_dirty", {
     description = S("Dirty Air Vent Lite"),
-    _tt_help = S("Air Register Cost 8"),
+    _tt_help = S("Register Cost 8"),
     -- up, down, right, left, back, front
     tiles = {"ctg_air_duct.png", "ctg_air_duct.png", "ctg_air_duct.png", "ctg_air_duct.png", "ctg_air_duct.png",
              "ctg_air_duct_vent_lite_dirty.png"},
@@ -128,7 +128,7 @@ minetest.register_node("ctg_airs:air_duct_vent_lite_dirty", {
         level = 1,
         metal = 1,
         duct = 3,
-        vent = 5,
+        vent = 7,
         vent_dirty = 1
     },
     is_ground_content = false,

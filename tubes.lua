@@ -11,7 +11,8 @@ local Tube = tubelib2.Tube:new({
                             "ctg_airs:lv_air_handler", "ctg_airs:lv_air_handler_active", "ctg_airs:lv_air_handler_wait",
                             "ctg_airs:lv_air_fan", "ctg_airs:mv_air_handler", "ctg_airs:mv_air_handler_active",
                             "ctg_airs:mv_air_handler_wait", "ctg_airs:lv_air_fan", "ctg_airs:lv_air_fan_active",
-                            "ctg_airs:mv_air_fan", "ctg_airs:mv_air_fan_active"},
+                            "ctg_airs:mv_air_fan", "ctg_airs:mv_air_fan_active", "ctg_airs:lv_air_purifier",
+                            "ctg_airs:lv_air_purifier_active", "ctg_airs:lv_air_purifier_dirty"},
     after_place_tube = function(pos, param2, tube_type, num_tubes)
         -- minetest.log("type: " .. tube_type .. " num: " .. num_tubes .. " param2:" .. param2)
         if num_tubes == 2 then
@@ -29,9 +30,16 @@ local Tube = tubelib2.Tube:new({
 })
 
 Tube:set_valid_sides("ctg_airs:lv_air_handler", {"U"})
+Tube:set_valid_sides("ctg_airs:lv_air_handler_active", {"U"})
 Tube:set_valid_sides("ctg_airs:mv_air_handler", {"U"})
+Tube:set_valid_sides("ctg_airs:mv_air_handler_active", {"U"})
 
 Tube:set_valid_sides("ctg_airs:lv_air_fan", {"U"})
+Tube:set_valid_sides("ctg_airs:lv_air_fan_active", {"U"})
 Tube:set_valid_sides("ctg_airs:mv_air_fan", {"U"})
+Tube:set_valid_sides("ctg_airs:mv_air_fan_active", {"U"})
+
+Tube:set_valid_sides("ctg_airs:lv_air_purifier", {"L", "R"})
+Tube:set_valid_sides("ctg_airs:lv_air_purifier_active", {"L", "R"})
 
 ctg_airs.Tube = Tube

@@ -23,11 +23,6 @@ function update_formspec3(data, meta, running, enabled)
     return update_formspec2(data, meta, running, enabled, 0, 0)
 end
 
--- check if enabled
-ctg_airs.machine_enabled = function(meta)
-    return meta:get_int("enabled") == 1
-end
-
 function ctg_airs.register_machine_fan(data)
     local typename = data.typename
     local machine_name = data.machine_name
@@ -134,17 +129,20 @@ function ctg_airs.register_machine_fan(data)
                 local t0_us = minetest.get_us_time();
                 local count = 0;
                 local power = 0
-                local valid, dest_pos, dir = ctg_airs.get_duct_output(pos)
+                local valid, dest_pos, dir = ctg_airs.get_duct_output_up(pos)
                 -- minetest.log(tostring(valid))
                 local disable = math.random(0, 2) == 0
                 if (valid > 0 and not disable) then
                     local dest_node = minetest.get_node(dest_pos)
                     if (dest_node and dest_node.name == "ctg_airs:air_duct_vent") then
-                        count, power = ctg_airs.process_vent(dest_pos, air_power)
+                        count, power = ctg_airs.process_vent(dest_pos, air_power, false)
                         -- minetest.log("vent")
                     elseif (dest_node and dest_node.name == "ctg_airs:air_duct_junc") then
-                        count, power = ctg_airs.process_junc(dest_pos, dir, air_power)
+                        count, power = ctg_airs.process_junc(dest_pos, dir, air_power, false)
                         -- minetest.log("junc")
+                    elseif (dest_node and ctg_airs.isAirPurifier(dest_node)) then
+                        count, power = ctg_airs.process_purifier(dest_pos, dir, air_power)
+                        -- minetest.log("purifier")
                     elseif (dest_node and dest_node.name == "vacuum:vacuum") then
                         count, power = ctg_airs.process_leak(dest_pos, air_power)
                         -- minetest.log("vacuum")
@@ -200,7 +198,7 @@ function ctg_airs.register_machine_fan(data)
 
     local node_name = data.modname .. ":" .. ltier .. "_" .. machine_name
     minetest.register_node(node_name, {
-        description = machine_desc:format(tier),
+        description = S("%s " .. machine_desc):format(tier),
         -- up, down, right, left, back, frondrt
         tiles = {ltier .. "_" .. machine_name .. "_top.png", ltier .. "_" .. machine_name .. "_bottom.png" .. mv,
                  ltier .. "_" .. machine_name .. "_side.png" .. mv, ltier .. "_" .. machine_name .. "_side.png" .. mv,
@@ -227,7 +225,7 @@ function ctg_airs.register_machine_fan(data)
         on_construct = function(pos)
             local node = minetest.get_node(pos)
             local meta = minetest.get_meta(pos)
-            meta:set_string("infotext", machine_desc:format(tier))
+            meta:set_string("infotext", S("%s " .. machine_desc):format(tier))
             -- meta:set_int("tube_time", 0)
             local inv = meta:get_inventory()
             -- inv:set_size("src", input_size)
@@ -298,7 +296,7 @@ function ctg_airs.register_machine_fan(data)
     end
 
     minetest.register_node(data.modname .. ":" .. ltier .. "_" .. machine_name .. "_active", {
-        description = machine_desc:format(tier),
+        description = S("%s " .. machine_desc):format(tier),
         tiles = {ltier .. "_" .. machine_name .. "_top.png", ltier .. "_" .. machine_name .. "_bottom.png" .. mv,
                  ltier .. "_" .. machine_name .. "_side.png" .. mv, ltier .. "_" .. machine_name .. "_side.png" .. mv,
                  ltier .. "_" .. machine_name .. "_side.png" .. mv, {
