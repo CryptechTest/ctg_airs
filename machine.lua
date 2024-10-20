@@ -307,7 +307,7 @@ function ctg_airs.register_machine(data)
                 return
             end
 
-            if vacuum.has_in_range(pos, "air", 1, 1) == false and
+            --[[if vacuum.has_in_range(pos, "air", 1, 1) == false and
                 vacuum.has_in_range(pos, "technic:dummy_light_source", 1, 1) == false and typename ~=
                 "air_handler_admin" then
                 technic.swap_node(pos, machine_node)
@@ -317,7 +317,7 @@ function ctg_airs.register_machine(data)
                 local formspec = update_formspec(data, meta, false, enabled, input_size)
                 meta:set_string("formspec", formspec .. form_buttons)
                 return
-            end
+            end]]--
 
             local has_air_near = vacuum.has_in_range(pos, "air", 1, 3);
             local result = get_bottle(typename, inv:get_list("src"), has_air_near)
