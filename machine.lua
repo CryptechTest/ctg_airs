@@ -573,6 +573,13 @@ function ctg_airs.register_machine(data)
         }
     })
 
+    local animation = {
+        type = "vertical_frames",
+        aspect_w = 64,
+        aspect_h = 64,
+        length = 1.75
+    }
+
     minetest.register_node(data.modname .. ":" .. ltier .. "_" .. machine_name .. "_active", {
         description = machine_desc:format(tier),
         tiles = {ltier .. "_" .. machine_name .. "_top.png",
@@ -581,12 +588,7 @@ function ctg_airs.register_machine(data)
                  ltier .. "_" .. machine_name .. "_side.png" .. tube_entry_metal, {
             image = ltier .. "_" .. machine_name .. "_active.png",
             backface_culling = false,
-            animation = {
-                type = "vertical_frames",
-                aspect_w = 32,
-                aspect_h = 32,
-                length = 1.25
-            }
+            animation = animation
         }},
         paramtype2 = "facedir",
         drop = data.modname .. ":" .. ltier .. "_" .. machine_name,
