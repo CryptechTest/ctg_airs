@@ -19,11 +19,7 @@ local function round(v)
     return math.floor(v + 0.5)
 end
 
-function update_formspec(data, meta, running, enabled, size)
-    return update_formspec2(data, meta, running, enabled, size, 0)
-end
-
-function update_formspec2(data, meta, running, enabled, size, percent)
+local function update_formspec2(data, meta, running, enabled, size, percent)
     local input_size = size
     local machine_desc = data.machine_desc
     local typename = data.typename
@@ -136,7 +132,15 @@ function update_formspec2(data, meta, running, enabled, size, percent)
     return formspec
 end
 
-function get_bottle(typename, items, has_air_near)
+local  function update_formspec(data, meta, running, enabled, size)
+    return update_formspec2(data, meta, running, enabled, size, 0)
+end
+
+function ctg_airs.update_formspec(data, meta, running, enabled, size)
+    return update_formspec(data, meta, running, enabled, size)
+end
+
+local function get_bottle(typename, items, has_air_near)
     local new_input = {}
     local new_output = nil
     local run_length = 0;
@@ -359,6 +363,7 @@ function ctg_airs.register_machine(data)
                 local count = 0;
                 local power = air_power or 0
                 local valid, dest_pos, dir = ctg_airs.get_duct_output_up(pos)
+                --ctg_airs.Tube:infotext(pos, dest_pos)
                 -- minetest.log(tostring(valid))
                 local disable = false
                 if (valid > 0 and not disable) then

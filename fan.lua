@@ -19,8 +19,8 @@ local function round(v)
     return math.floor(v + 0.5)
 end
 
-function update_formspec3(data, meta, running, enabled)
-    return update_formspec2(data, meta, running, enabled, 0, 0)
+local function update_formspec3(data, meta, running, enabled)
+    return ctg_airs.update_formspec(data, meta, running, enabled, 0, 0)
 end
 
 function ctg_airs.register_machine_fan(data)

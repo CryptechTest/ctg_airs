@@ -786,6 +786,7 @@ function ctg_airs.process_junc2(junc_pos, dir, networks, power, hasPur)
         local brek = false;
         local tube = ctg_airs.Tube:get_next_tube(junc_pos, i)
         local dest_pos = ctg_airs.Tube:get_connected_node_pos(junc_pos, i)
+        --ctg_airs.Tube:infotext(tube, dest_pos)
         --local valid, dest_pos, dir = ctg_airs.get_duct_output(junc_pos, i)
         if tube ~= nil or dest_pos ~= nil then
             if dest_pos ~= nil and dest_pos ~= junc_pos and networks[dest_pos] == nil then
@@ -1078,4 +1079,3 @@ function ctg_airs.near_active_vent(pos, range)
 
     return false
 end
-
