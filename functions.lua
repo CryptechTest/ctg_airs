@@ -329,9 +329,9 @@ function ctg_airs.spawn_particle(pos, dir_x, dir_y, dir_z, acl_x, acl_y, acl_z, 
                 z = rz
             },
             minacc = {
-                x = acl_x,
-                y = acl_y,
-                z = acl_z
+                x = acl_x * 0.8,
+                y = acl_y * 0.8,
+                z = acl_z * 0.8
             },
             maxacc = {
                 x = acl_x,
@@ -633,24 +633,41 @@ local function process_vent2(pos, power, cost, hasPur)
     local dir_z = 0.0001
     local dir_y = 0.0001
     local aclr = 0;
-    if param2 == 1 then -- west
-        dir_x = 1
+
+    local dir = math.floor(param2 / 4)
+    local rot = param2 % 4
+
+    if dir == 0 or dir == 5 then
+        if rot == 0 then
+            dir_z = 1
+        elseif rot == 1 then
+            dir_x = 1
+        elseif rot == 2 then
+            dir_z = -1
+        elseif rot == 3 then
+            dir_x = -1
+        end
         aclr = math.random(-1, 1)
-    elseif param2 == 2 then -- north?
-        dir_z = -1
-        aclr = math.random(-1, 1)
-    elseif param2 == 3 then -- east
-        dir_x = -1
-        aclr = math.random(-1, 1)
-    elseif param2 == 0 then -- south
-        dir_z = 1
-        aclr = math.random(-1, 1)
-    elseif param2 == 8 or param2 == 15 or param2 == 6 then
-        -- down
-        dir_y = 1
-    elseif param2 == 10 or param2 == 13 or param2 == 4 then
-        -- up
-        dir_y = -1
+    elseif dir == 1 or dir == 3 then
+        if rot == 0 then
+            dir_y = -1
+        elseif rot == 1 then
+            dir_y = -1
+        elseif rot == 2 then
+            dir_y = 1
+        elseif rot == 3 then
+            dir_y = 1
+        end
+    elseif dir == 2 or dir == 4 then
+        if rot == 0 then
+            dir_y = 1
+        elseif rot == 1 then
+            dir_y = 1
+        elseif rot == 2 then
+            dir_y = 1
+        elseif rot == 3 then
+            dir_y = 1
+        end
     end
 
     local acl_x = 0.15 * (dir_x)
