@@ -27,6 +27,7 @@ function ctg_airs.register_air_handler_machine(data)
         right = 1,
         back = 1
     }
+    data.upgrade = 1
     data.machine_name = "air_handler"
     -- data.can_insert = true
     data.typename = "air_handler"
@@ -79,15 +80,15 @@ ctg_airs.register_air_handler_machine_admin({
 
 ctg_airs.register_air_handler_machine({
     tier = "LV",
-    demand = {1250},
-    speed = 0.5,
+    demand = {1050, 900, 750},
+    speed = 0.6,
     power = 128
 })
 
 ctg_airs.register_air_handler_machine({
     tier = "MV",
-    demand = {2600},
-    speed = 0.4,
+    demand = {2200, 2000, 1700},
+    speed = 0.44,
     power = 200
 })
 
