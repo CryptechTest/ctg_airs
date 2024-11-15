@@ -81,14 +81,14 @@ ctg_airs.register_air_handler_machine_admin({
 ctg_airs.register_air_handler_machine({
     tier = "LV",
     demand = {1050, 900, 750},
-    speed = 0.6,
+    speed = 0.4,
     power = 128
 })
 
 ctg_airs.register_air_handler_machine({
     tier = "MV",
     demand = {2200, 2000, 1700},
-    speed = 0.44,
+    speed = 0.32,
     power = 200
 })
 
