@@ -40,7 +40,7 @@ minetest.register_abm({
 
         local nodes = minetest.find_nodes_in_area(pos1, pos2, {"vacuum:atmos_thin", "vacuum:vacuum", "asteroid:atmos"})
         for _, node in ipairs(nodes) do
-            minetest.set_node(node.pods, {
+            minetest.set_node(node.pos, {
                 name = "air"
             })
 
