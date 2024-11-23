@@ -18,6 +18,13 @@ local connect_default = {"bottom", "back"}
 local function round(v)
     return math.floor(v + 0.5)
 end
+-- rounding function
+local function fround(n, prec)
+    prec = prec or 3
+    local str = string.format("%."..prec.."f", n)
+    local num = tonumber(str);
+    return tostring(num)
+end
 
 local function update_formspec2(data, meta, running, enabled, size, percent)
     local input_size = size
@@ -36,6 +43,7 @@ local function update_formspec2(data, meta, running, enabled, size, percent)
 
         local lag_stat = ""
         if meta ~= nil then
+            -- lag last
             local lag = meta:get_string("time_lag")
             local clag = lag .. " ms"
             if lag and tonumber(lag, 10) ~= nil then
@@ -49,7 +57,22 @@ local function update_formspec2(data, meta, running, enabled, size, percent)
                     clag = minetest.colorize('#21ffb5', lag .. " ms")
                 end
             end
-            lag_stat = "label[4,0.5;" .. clag .. "]"
+            local lag = "label[4,0.175;Lag:]" .. "label[4.6,0.175;" .. clag .. "]"
+            -- lag avg
+            local lag_listing = meta:get_string("time_lag_list") or nil
+            local lag_list = lag_listing and core.deserialize(lag_listing) or {}
+            local count = 0 
+            local total = 0
+            for _, l in pairs(lag_list) do
+                total = total + l
+                count = count + 1
+            end
+            local avg = (total / count)
+            local acol = ctg_airs.get_color_range_text(38 - avg, 38)
+            local alag = minetest.colorize(acol, fround(avg, 1) .. " ms")
+            local avg = "label[4,0.5;Avg:]" .. "label[4.6,0.5;" .. alag .. "]"
+            -- lag stat
+            lag_stat = avg .. lag
         end
 
         local image = "ctg_gauge_0.png"
@@ -111,7 +134,7 @@ local function update_formspec2(data, meta, running, enabled, size, percent)
                     clag = minetest.colorize('#21ffb5', lag .. " ms")
                 end
             end
-            lag_stat = "label[4,0.5;" .. clag .. "]"
+            lag_stat = "label[3.5,0.5;Lag:]" .. "label[4,0.5;" .. clag .. "]"
         end
 
         local image = "ctg_fan_icon.png"
@@ -391,13 +414,13 @@ function ctg_airs.register_machine(data)
                     -- minetest.log("power rem: " .. power)
 
                     if count <= 1 then
-                        meta:set_int("vent_tick", math.random(1, 4));
+                        meta:set_int("vent_tick", math.random(1, 5));
                     elseif count <= 27 then
-                        meta:set_int("vent_tick", math.random(1, 3));
+                        meta:set_int("vent_tick", math.random(1, 4));
                     elseif count <= 125 then
-                        meta:set_int("vent_tick", math.random(1, 2));
+                        meta:set_int("vent_tick", math.random(1, 3));
                     else
-                        meta:set_int("vent_tick", 1);
+                        meta:set_int("vent_tick", 2);
                     end
 
                     meta:set_int("src_time", meta:get_int("src_time") + round(count))
@@ -422,10 +445,23 @@ function ctg_airs.register_machine(data)
                 local elapsed_time_in_milliseconds = elapsed_time_in_seconds * 1000;
                 meta:set_string("time_lag", tostring(elapsed_time_in_milliseconds));
 
-                if elapsed_time_in_milliseconds >= 40 then
-                    meta:set_int("vent_tick", meta:get_int("vent_tick") + 5);
+                -- lag listing
+                local lag_listing = meta:get_string("time_lag_list") or nil
+                local lag_list = lag_listing and core.deserialize(lag_listing) or {}
+                table.insert(lag_list, elapsed_time_in_milliseconds)
+                if #lag_list > 20 then
+                    table.remove(lag_list, 1)
+                end
+                meta:set_string("time_lag_list", core.serialize(lag_list))
+
+                if elapsed_time_in_milliseconds >= 60 then
+                    meta:set_int("vent_tick", meta:get_int("vent_tick") + 11);
+                elseif elapsed_time_in_milliseconds >= 50 then
+                    meta:set_int("vent_tick", meta:get_int("vent_tick") + 9);
+                elseif elapsed_time_in_milliseconds >= 40 then
+                    meta:set_int("vent_tick", meta:get_int("vent_tick") + 7);
                 elseif elapsed_time_in_milliseconds >= 30 then
-                    meta:set_int("vent_tick", meta:get_int("vent_tick") + 4);
+                    meta:set_int("vent_tick", meta:get_int("vent_tick") + 5);
                 elseif elapsed_time_in_milliseconds >= 20 then
                     meta:set_int("vent_tick", meta:get_int("vent_tick") + 3);
                 elseif elapsed_time_in_milliseconds >= 10 then

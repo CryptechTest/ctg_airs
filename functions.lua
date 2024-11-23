@@ -11,6 +11,32 @@ ctg_airs.machine_enabled = function(meta)
     return meta:get_int("enabled") == 1
 end
 
+function ctg_airs.get_color_range_text(val, val_max)
+    local col = '#FFFFFF'
+    if not val or not val_max then
+        return col
+    end
+    local qua = val_max / 8
+    if val <= qua then
+        col = "#FF0000"
+    elseif val <= (qua * 2) then
+        col = "#FF3D00"
+    elseif val <= (qua * 3) then
+        col = "#FF7A00"
+    elseif val <= (qua * 4) then
+        col = "#FFB500"
+    elseif val <= (qua * 5) then
+        col = "#FFFF00"
+    elseif val <= (qua * 6) then
+        col = "#B4FF00"
+    elseif val <= (qua * 7) then
+        col = "#00FF00"
+    elseif val > (qua * 7) then
+        col = "#00FF50"
+    end
+    return col
+end
+
 local check_node_tube = function(pos)
     local ducts = {"ctg_airs:air_duct_S", "ctg_airs:air_duct_S2", "ctg_airs:air_duct_A", "ctg_airs:air_duct_A2"}
 
@@ -53,10 +79,10 @@ end
 
 local function is_atmos_node(pos)
     local node = minetest.get_node(pos)
-    if minetest.get_item_group(node.name, "vacuum") == 1 or minetest.get_item_group(node.name, "atmosphere") > 0 then
+    if node.name == "air" then
         return true
     end
-    if node.name == "air" then
+    if minetest.get_item_group(node.name, "vacuum") == 1 or minetest.get_item_group(node.name, "atmosphere") > 0 then
         return true
     end
     if node.name == "technic:dummy_light_source" then
@@ -69,7 +95,7 @@ local function get_node_cost(pos)
     local node = minetest.get_node(pos)
     if minetest.get_item_group(node.name, "vacuum") == 1 then
         -- vacuum
-        return 0.01
+        return 0.02
     end
     local atmos = minetest.get_item_group(node.name, "atmosphere")
     if atmos == 1 then
@@ -145,13 +171,13 @@ local function traverse_atmos_local(pos_orig, dir, pos, r, d)
         y = pos.y,
         z = pos.z - 1
     }}
-    --[[if d < 2 then
+    if d < 1 then
         table.insert(positions, {
             x = pos.x - dir.x * 2,
             y = pos.y - dir.y * 2,
             z = pos.z - dir.z * 2
         });
-    end--]]
+    end
     local nodes = {}
     local dist = vector.distance({
         x = pos.x,
@@ -164,7 +190,7 @@ local function traverse_atmos_local(pos_orig, dir, pos, r, d)
     })
     nodes[str_pos(pos)] = pos
     if (dist > r) then
-        return nodes, 0;
+        return nodes;
     end
     for i, cur_pos in pairs(shuffle(positions)) do
         if is_atmos_node(cur_pos) then
@@ -174,24 +200,30 @@ local function traverse_atmos_local(pos_orig, dir, pos, r, d)
     return nodes;
 end
 
-local function traverse_atmos(t, trv, pos, dir, pos_next, r, depth)
-    if depth > 15 then
-        return {}, 0
-    end
+local function traverse_atmos(t, trv, pos, dir, pos_next, r, depth, max_cost)
+    local nodes = {};
     if #trv > 500 then
-        return {}, 0
+        return nodes, 1.0
     end
     if pos_next == nil then
         pos_next = pos;
     end
-    local nodes = {};
     if has_pos(trv, pos_next) then
         return nodes, 0;
     end
     nodes[str_pos(pos_next)] = pos_next
     trv[str_pos(pos_next)] = pos_next
-    local elapsed_time_in_ms_max = 7.31;
-    local max_cost = (r * 3);
+    local d = math.min(r, 6) + 3
+    if depth > d then
+        return nodes, 0.5
+    end
+    local elapsed_time_in_ms_max = 3.17;
+    local t0_us = minetest.get_us_time();
+    local elapsed_time_in_ms = (t0_us - t) / 1000.0;
+    if elapsed_time_in_ms >= elapsed_time_in_ms_max then
+        return nodes, 1
+    end
+
     local costs = 0;
     local trav_nodes = traverse_atmos_local(pos, dir, pos_next, r, depth);
     for i, pos2 in pairs(trav_nodes) do
@@ -199,29 +231,15 @@ local function traverse_atmos(t, trv, pos, dir, pos_next, r, depth)
             break
         end
 
-        local t0_us = minetest.get_us_time();
-        local elapsed_time_in_ms = (t0_us - t) / 1000.0;
-        if elapsed_time_in_ms >= elapsed_time_in_ms_max then
-            break
-        end
-
         if has_pos(trv, pos2) == false then
             nodes[str_pos(pos2)] = pos2
             costs = costs + get_node_cost(pos2)
-            if depth <= 4 or (math.random(0, 2) > 0) then
-                local atmoss, cost = traverse_atmos(t, trv, pos, dir, pos2, r, depth + 1);
-                for i, n in pairs(atmoss) do
-                    nodes[str_pos(n)] = n
-                    costs = costs + get_node_cost(n)
-                    if costs > max_cost then
-                        break
-                    end
-
-                    local t1_us = minetest.get_us_time();
-                    local elapsed_time_in_ms = (t1_us - t) / 1000.0;
-                    if elapsed_time_in_ms >= elapsed_time_in_ms_max then
-                        break
-                    end
+            local atmoss, cost = traverse_atmos(t, trv, pos, dir, pos2, r, depth + 1, max_cost);
+            for i, n in pairs(atmoss) do
+                nodes[str_pos(n)] = n
+                costs = costs + get_node_cost(n)
+                if costs > max_cost then
+                    break
                 end
             end
         end
@@ -232,8 +250,9 @@ end
 
 local fill_atmos_near = function(pos, dir, r)
     local traversed = {}
+    local max_cost = (r * math.random(5, 11));
     local t0_us = minetest.get_us_time();
-    local nodes, cost = traverse_atmos(t0_us, traversed, vector.subtract(pos, dir), dir, nil, r, 0);
+    local nodes, cost = traverse_atmos(t0_us, traversed, vector.subtract(pos, dir), dir, nil, r + 1, 0, max_cost);
     -- minetest.log("found " .. #nodes);
     local count = 0;
     for i, node_pos in pairs(nodes) do
@@ -241,18 +260,7 @@ local fill_atmos_near = function(pos, dir, r)
             break
         end
         local node = minetest.get_node(node_pos)
-        local chng = false;
-        local vacc = false;
-        if (minetest.get_item_group(node.name, "vacuum") == 1) then
-            chng = true;
-            vacc = true;
-        elseif (minetest.get_item_group(node.name, "atmosphere") == 1) or
-            (minetest.get_item_group(node.name, "atmosphere") == 3) then
-            chng = true;
-        elseif (minetest.get_item_group(node.name, "atmosphere") == 2) then
-            chng = true
-        end
-        if chng then
+        if node.name ~= "air" then
             count = count + 1;
             minetest.set_node(node_pos, {
                 name = "air"
@@ -608,19 +616,25 @@ local function process_vent2(pos, power, cost, hasPur)
     if elapsed_time_in_seconds < 5 then
         return 0, power - 1
     end
-    if t_lag and t_lag > 7 and elapsed_time_in_seconds < 30 then
+    if t_lag and t_lag > 44 and elapsed_time_in_seconds < 37 then
+        return 0, power - 7
+    end
+    if t_lag and t_lag > 35 and elapsed_time_in_seconds < 34 then
+        return 0, power - 6
+    end
+    if t_lag and t_lag > 21 and elapsed_time_in_seconds < 30 then
         return 0, power - 5
     end
-    if t_lag and t_lag > 5 and elapsed_time_in_seconds < 25 then
+    if t_lag and t_lag > 17 and elapsed_time_in_seconds < 25 then
         return 0, power - 4
     end
-    if t_lag and t_lag > 3 and elapsed_time_in_seconds < 20 then
+    if t_lag and t_lag > 10 and elapsed_time_in_seconds < 20 then
         return 0, power - 3
     end
-    if t_lag and t_lag > 1.0 and elapsed_time_in_seconds < 15 then
+    if t_lag and t_lag > 5 and elapsed_time_in_seconds < 15 then
         return 0, power - 2
     end
-    if t_lag and t_lag > 0.67 and elapsed_time_in_seconds < 10 then
+    if t_lag and t_lag > 1.67 and elapsed_time_in_seconds < 10 then
         return 0, power - 1
     end
     if t_lag and t_lag > 0.51 and elapsed_time_in_seconds < 5 then
@@ -680,7 +694,7 @@ local function process_vent2(pos, power, cost, hasPur)
     end
 
     minetest.after(0, function()
-        ctg_airs.spawn_particle(pos, dir_x, dir_y, dir_z, acl_x, acl_y, acl_z, lvl, 7, cost + 1)
+        ctg_airs.spawn_particle(pos, dir_x, dir_y, dir_z, acl_x, acl_y, acl_z, lvl, 8, cost + 1)
     end)
 
     if vacuum.is_pos_in_spawn(pos) then
@@ -711,18 +725,12 @@ local function process_vent2(pos, power, cost, hasPur)
         end
     end
 
-    local dir = {
-        x = dir_x,
-        y = dir_y,
-        z = dir_z
-    }
+    local dir = vector.new(dir_x, dir_y, dir_z)
     local dir_pos = vector.subtract(pos, dir);
 
-    local count = 1;
-    local tcost = 0;
-    local travs = 0;
+    -- get dirty group
     local dirty = minetest.get_item_group(node.name, "vent_dirty") or 0
-
+    -- recalc power
     power = power - (cost + dirty)
 
     local r = 3
@@ -738,8 +746,9 @@ local function process_vent2(pos, power, cost, hasPur)
         r = r + 1;
     end
 
-    count, tcost, travs = fill_atmos_near(dir_pos, dir, r - (dirty * 2));
-
+    -- fill area with air
+    local count, tcost, travs = fill_atmos_near(dir_pos, dir, r - (dirty * 2));
+    -- recalc power
     power = math.max(power, tcost * 0.5);
 
     if ((count > 0 and math.random(0, 10) == 0) and power > -5) then
@@ -753,26 +762,59 @@ local function process_vent2(pos, power, cost, hasPur)
         end)
     end
 
+    -- lag tracking
     local t1_us = minetest.get_us_time();
     local elapsed_time_in_seconds = (t1_us - t0_us) / 1000000.0;
     local elapsed_time_in_milliseconds = elapsed_time_in_seconds * 1000;
-
     meta:set_string("time_lag", tostring(elapsed_time_in_milliseconds));
     meta:set_int("time_run", t1_us);
+    -- set active
     meta:set_int("active", 1)
 
+    -- lag listing
+    local lag_listing = meta:get_string("time_lag_list") or nil
+    local lag_list = lag_listing and core.deserialize(lag_listing) or {}
+    table.insert(lag_list, elapsed_time_in_milliseconds)
+    if #lag_list > 10 then
+        table.remove(lag_list, 1)
+    end
+    meta:set_string("time_lag_list", core.serialize(lag_list))
+
+    -- rounding function
+    local function fround(n, prec)
+        prec = prec or 3
+        local str = string.format("%."..prec.."f", n)
+        local num = tonumber(str);
+        return tostring(num)
+    end
+
+    -- lag current
+    local lag = fround(elapsed_time_in_milliseconds) .. " ms"
+    local n_lag = "\nLag: " .. lag
+    -- lag avg
+    local count = 0
+    local total = 0
+    for _, l in pairs(lag_list) do
+        total = total + l
+        count = count + 1
+    end
+    local avg = (total / count)
+    local lag_avg = fround(avg, 1) .. " ms"
+    local n_eff = "\nLag-Avg: " .. lag_avg
+    -- cost usage
+    local cost_max = math.max(120, tcost)
+    local n_cost = "\nUsage: " .. fround((tcost / cost_max) * 100, 2) .. " %"
+
+    -- vent node stat info
+    local stat = n_lag .. n_eff .. n_cost
     if node.name == "ctg_airs:air_duct_vent" then
-        local lag = tostring(elapsed_time_in_milliseconds) .. " ms"
-        meta:set_string("infotext", S("Vent") .. "\nLag: " .. lag .. "\nNode Cost: " .. tcost)
+        meta:set_string("infotext", S("Vent") .. stat)
     elseif node.name == "ctg_airs:air_duct_vent_dirty" then
-        local lag = tostring(elapsed_time_in_milliseconds) .. " ms"
-        meta:set_string("infotext", S("Dirty Vent") .. "\nLag: " .. lag .. "\nNode Cost: " .. tcost)
+        meta:set_string("infotext", S("Dirty Vent") .. stat)
     elseif node.name == "ctg_airs:air_duct_vent_lite" then
-        local lag = tostring(elapsed_time_in_milliseconds) .. " ms"
-        meta:set_string("infotext", S("Lite Vent") .. "\nLag: " .. lag .. "\nNode Cost: " .. tcost)
+        meta:set_string("infotext", S("Lite Vent") .. stat)
     elseif node.name == "ctg_airs:air_duct_vent_lite_dirty" then
-        local lag = tostring(elapsed_time_in_milliseconds) .. " ms"
-        meta:set_string("infotext", S("Dirty Lite Vent") .. "\nLag: " .. lag .. "\nNode Cost: " .. tcost)
+        meta:set_string("infotext", S("Dirty Lite Vent") .. stat)
     end
 
     -- minetest.log("making atmos..")
