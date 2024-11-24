@@ -171,7 +171,7 @@ local function traverse_atmos_local(pos_orig, dir, pos, r, d)
         y = pos.y,
         z = pos.z - 1
     }}
-    if d < 1 then
+    if d < 2 then
         table.insert(positions, {
             x = pos.x - dir.x * 2,
             y = pos.y - dir.y * 2,
@@ -200,69 +200,71 @@ local function traverse_atmos_local(pos_orig, dir, pos, r, d)
     return nodes;
 end
 
-local function traverse_atmos(t, trv, pos, dir, pos_next, r, depth, max_cost)
-    local nodes = {};
-    if #trv > 500 then
-        return nodes, 1.0
-    end
+local function traverse_atmos(t, pos, dir, pos_next, r, depth, max_cost)
     if pos_next == nil then
         pos_next = pos;
     end
-    if has_pos(trv, pos_next) then
-        return nodes, 0;
-    end
+    local nodes = {};
+    local costs = get_node_cost(pos_next);
+    -- add pos to listing
     nodes[str_pos(pos_next)] = pos_next
-    trv[str_pos(pos_next)] = pos_next
-    local d = math.min(r, 6) + 3
-    if depth > d then
-        return nodes, 0.5
+    -- depth check
+    local max_depth = math.min(r, 8) + 5
+    if depth > max_depth then
+        return nodes, costs
     end
+    depth = depth + 1
+    -- elapsed time check
     local elapsed_time_in_ms_max = 3.17;
-    local t0_us = minetest.get_us_time();
+    local t0_us = core.get_us_time();
     local elapsed_time_in_ms = (t0_us - t) / 1000.0;
     if elapsed_time_in_ms >= elapsed_time_in_ms_max then
-        return nodes, 1
+        return nodes, costs
     end
-
-    local costs = 0;
+    -- traverse nodes in local area
     local trav_nodes = traverse_atmos_local(pos, dir, pos_next, r, depth);
-    for i, pos2 in pairs(trav_nodes) do
+    for _, tpos in pairs(trav_nodes) do
+        -- add to listing
+        if not has_pos(nodes, tpos) then
+            nodes[str_pos(tpos)] = tpos
+            if math.random(0, 2) <= 0 then
+                -- traverse atmos for next pos in chain
+                local atmoss, cost = traverse_atmos(t, pos, dir, tpos, r, depth, max_cost);
+                costs = costs + cost
+                for i, n in pairs(atmoss) do
+                    nodes[str_pos(n)] = n
+                end
+            else
+                costs = costs + get_node_cost(tpos);
+            end
+        end
+        -- cost overage cehck
         if costs > max_cost then
             break
         end
 
-        if has_pos(trv, pos2) == false then
-            nodes[str_pos(pos2)] = pos2
-            costs = costs + get_node_cost(pos2)
-            local atmoss, cost = traverse_atmos(t, trv, pos, dir, pos2, r, depth + 1, max_cost);
-            for i, n in pairs(atmoss) do
-                nodes[str_pos(n)] = n
-                costs = costs + get_node_cost(n)
-                if costs > max_cost then
-                    break
-                end
-            end
-        end
-
     end
+    -- return nodes and costs
     return nodes, costs;
 end
 
 local fill_atmos_near = function(pos, dir, r)
-    local traversed = {}
-    local max_cost = (r * math.random(5, 11));
-    local t0_us = minetest.get_us_time();
-    local nodes, cost = traverse_atmos(t0_us, traversed, vector.subtract(pos, dir), dir, nil, r + 1, 0, max_cost);
+    local origin = vector.subtract(pos, dir);
+    local max_cost = r * math.random(7, 20);
+    local t0_us = core.get_us_time();
+    -- traverse nearby atmos
+    local nodes, cost = traverse_atmos(t0_us, origin, dir, nil, r, 0, max_cost);
     -- minetest.log("found " .. #nodes);
     local count = 0;
+    -- iterate over nodes found
     for i, node_pos in pairs(nodes) do
         if (count > 1000) then
             break
         end
-        local node = minetest.get_node(node_pos)
+        local node = core.get_node(node_pos)
         if node.name ~= "air" then
             count = count + 1;
-            minetest.set_node(node_pos, {
+            core.set_node(node_pos, {
                 name = "air"
             })
             if math.random(0, 7) <= 1 then
@@ -800,10 +802,10 @@ local function process_vent2(pos, power, cost, hasPur)
     end
     local avg = (total / count)
     local lag_avg = fround(avg, 1) .. " ms"
-    local n_eff = "\nLag-Avg: " .. lag_avg
+    local n_eff = "\nTick: " .. lag_avg
     -- cost usage
-    local cost_max = math.max(120, tcost)
-    local n_cost = "\nUsage: " .. fround((tcost / cost_max) * 100, 2) .. " %"
+    local cost_max = math.max(512, tcost)
+    local n_cost = "\nFilled: " .. fround((tcost / cost_max) * 100, 0) .. " %"
 
     -- vent node stat info
     local stat = n_lag .. n_eff .. n_cost
