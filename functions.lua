@@ -116,6 +116,16 @@ local function get_node_cost(pos)
     return 0.0
 end
 
+local is_player_near = function(pos)
+    local objs = core.get_objects_inside_radius(pos, 64)
+    for _, obj in pairs(objs) do
+        if obj:is_player() then
+            return true;
+        end
+    end
+    return false;
+end
+
 local function str_pos(pos)
     return pos.x .. ":" .. pos.y .. ":" .. pos.z
 end
@@ -261,8 +271,7 @@ local fill_atmos_near = function(pos, dir, r)
         if (count > 1000) then
             break
         end
-        local node = core.get_node(node_pos)
-        if node.name ~= "air" then
+        if is_thin_atmos_node(node_pos) then
             count = count + 1;
             core.set_node(node_pos, {
                 name = "air"
@@ -277,6 +286,9 @@ local fill_atmos_near = function(pos, dir, r)
 end
 
 function ctg_airs.spawn_particle(pos, dir_x, dir_y, dir_z, acl_x, acl_y, acl_z, lvl, time, amount)
+    if (not is_player_near(pos)) then
+        return;
+    end
     local animation = {
         type = "vertical_frames",
         aspect_w = 16,
@@ -363,6 +375,9 @@ function ctg_airs.spawn_particle(pos, dir_x, dir_y, dir_z, acl_x, acl_y, acl_z, 
 end
 
 function ctg_airs.spawn_particle2(pos, dir_x, dir_y, dir_z, acl_x, acl_y, acl_z, lvl, time, amount)
+    if (not is_player_near(pos)) then
+        return;
+    end
     local animation = {
         type = "vertical_frames",
         aspect_w = 16,
@@ -615,29 +630,29 @@ local function process_vent2(pos, power, cost, hasPur)
     local t2_us = meta:get_int("time_run")
     local t_lag = tonumber(meta:get_string("time_lag"))
     local elapsed_time_in_seconds = (t0_us - t2_us) / 1000000.0;
-    if elapsed_time_in_seconds < 5 then
-        return 0, power - 1
+    if elapsed_time_in_seconds <= 3 then
+        return 0, power + 1
     end
     if t_lag and t_lag > 44 and elapsed_time_in_seconds < 37 then
-        return 0, power - 7
+        return 0, power + 7
     end
     if t_lag and t_lag > 35 and elapsed_time_in_seconds < 34 then
-        return 0, power - 6
+        return 0, power + 6
     end
     if t_lag and t_lag > 21 and elapsed_time_in_seconds < 30 then
-        return 0, power - 5
+        return 0, power + 5
     end
     if t_lag and t_lag > 17 and elapsed_time_in_seconds < 25 then
-        return 0, power - 4
+        return 0, power + 4
     end
     if t_lag and t_lag > 10 and elapsed_time_in_seconds < 20 then
-        return 0, power - 3
+        return 0, power + 3
     end
     if t_lag and t_lag > 5 and elapsed_time_in_seconds < 15 then
-        return 0, power - 2
+        return 0, power + 2
     end
     if t_lag and t_lag > 1.67 and elapsed_time_in_seconds < 10 then
-        return 0, power - 1
+        return 0, power + 1
     end
     if t_lag and t_lag > 0.51 and elapsed_time_in_seconds < 5 then
         return 0, power - 0
