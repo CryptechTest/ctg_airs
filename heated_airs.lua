@@ -1,8 +1,9 @@
 
 local get_particle = function (player, pos, hot)
     local size = 16
+    local color = hot == true and "#ff0000" or "#ff2891"
     local texture = {
-        name = "ctg_air_vent_vapor_anim.png^[colorize:#ff289133",
+        name = "ctg_air_vent_vapor_anim.png^[colorize:" .. color .. "33",
         blend = "alpha",
         alpha = 0.5,
         alpha_tween = {0.5, 0.1},
@@ -30,7 +31,7 @@ local get_particle = function (player, pos, hot)
         -- Requires collisiondetection = true to have any effect.
         vertical = false,
         -- If true faces player using y axis only
-        texture = "ctg_air_vent_vapor_anim.png^[colorize:#ff289133",
+        texture = texture,
         -- The texture of the particle
         -- v5.6.0 and later: also supports the table format described in the
         -- following section, but due to a bug this did not take effect
