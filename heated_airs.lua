@@ -1,4 +1,73 @@
 
+local get_particle = function (player, pos)
+    local size = 1
+    local p ={
+        pos = pos,
+        velocity = {x=0, y=0, z=0},
+        acceleration = {x=0, y=0, z=0},
+        -- Spawn particle at pos with velocity and acceleration 
+        expirationtime = 3,
+        -- Disappears after expirationtime seconds
+        size = size,
+        -- Scales the visual size of the particle texture.
+        -- If `node` is set, size can be set to 0 to spawn a randomly-sized
+        -- particle (just like actual node dig particles).
+        collisiondetection = false,
+        -- If true collides with `walkable` nodes and, depending on the
+        -- `object_collision` field, objects too.
+        collision_removal = false,
+        -- If true particle is removed when it collides.
+        -- Requires collisiondetection = true to have any effect.
+        object_collision = false,
+        -- If true particle collides with objects that are defined as
+        -- `physical = true,` and `collide_with_objects = true,`.
+        -- Requires collisiondetection = true to have any effect.
+        vertical = false,
+        -- If true faces player using y axis only
+        texture = "ctg_air_vent_vapor_anim.png^[colorize:#ff289133",
+        -- The texture of the particle
+        -- v5.6.0 and later: also supports the table format described in the
+        -- following section, but due to a bug this did not take effect
+        -- (beyond the texture name).
+        -- v5.9.0 and later: fixes the bug.
+        -- Note: "texture.animation" is ignored here. Use "animation" below instead.
+        playername = player or nil,
+        -- Optional, if specified spawns particle only on the player's client
+        animation = {
+            type = "vertical_frames",   
+            aspect_w = 16,
+            -- Width of a frame in pixels
+            aspect_h = 16,
+            -- Height of a frame in pixels
+            length = 3.0,
+            -- Full loop length
+        },
+        -- Optional, specifies how to animate the particle texture
+        glow = 2,
+        -- Optional, specify particle self-luminescence in darkness.
+        -- Values 0-14.
+        --node = {name = "ignore", param2 = 0},
+        -- Optional, if specified the particle will have the same appearance as
+        -- node dig particles for the given node.
+        -- `texture` and `animation` will be ignored if this is set.
+        --node_tile = 0,
+        -- Optional, only valid in combination with `node`
+        -- If set to a valid number 1-6, specifies the tile from which the
+        -- particle texture is picked.
+        -- Otherwise, the default behavior is used. (currently: any random tile)
+        drag = {x=0, y=0, z=0},
+        -- v5.6.0 and later: Optional drag value, consult the following section
+        -- Note: Only a vector is supported here. Alternative forms like a single
+        -- number are not supported.
+        --jitter = {min = ..., max = ..., bias = 0},
+        -- v5.6.0 and later: Optional jitter range, consult the following section
+        --bounce = {min = ..., max = ..., bias = 0},
+        -- v5.6.0 and later: Optional bounce range, consult the following section
+    }
+    return p
+end
+
+
 -- this is just like air, but warm...
 minetest.register_node("ctg_airs:atmos_warm", {
 	description = "Atmosphere Air Warm",
@@ -18,6 +87,16 @@ minetest.register_node("ctg_airs:atmos_warm", {
 	groups = {not_in_creative_inventory = 1, atmosphere = 10},
 	waving = 3,
 	drop = {},
+    on_construct = function(pos)
+        local players = minetest.get_objects_inside_radius(pos, 10)
+        for _, player in ipairs(players) do
+            if player:is_player() then
+                local p = get_particle(player, pos)
+                minetest.add_particle(p)
+            end
+        end
+    end
+
 })
 
 -- this is just like air, but hot...
@@ -39,6 +118,15 @@ minetest.register_node("ctg_airs:atmos_hot", {
 	groups = {not_in_creative_inventory = 1, atmosphere = 11},
 	waving = 3,
 	drop = {},
+    on_construct = function(pos)
+        local players = minetest.get_objects_inside_radius(pos, 10)
+        for _, player in ipairs(players) do
+            if player:is_player() then
+                local p = get_particle(player, pos)
+                minetest.add_particle(p)
+            end
+        end
+    end
 })
 
 minetest.register_abm({
