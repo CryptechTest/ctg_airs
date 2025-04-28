@@ -13,7 +13,7 @@ local get_particle = function (player, pos, hot)
         velocity = {x=0, y=0, z=0},
         acceleration = {x=0, y=0, z=0},
         -- Spawn particle at pos with velocity and acceleration 
-        expirationtime = 1,
+        expirationtime = 3,
         -- Disappears after expirationtime seconds
         size = size,
         -- Scales the visual size of the particle texture.
