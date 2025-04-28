@@ -70,8 +70,9 @@ end
 
 local function is_thin_atmos_node(pos)
     local node = minetest.get_node(pos)
-    if minetest.get_item_group(node.name, "vacuum") == 1 or minetest.get_item_group(node.name, "atmosphere") == 1 or
-        minetest.get_item_group(node.name, "atmosphere") == 3 then
+    local atmos = minetest.get_item_group(node.name, "atmosphere")
+    if minetest.get_item_group(node.name, "vacuum") == 1 or atmos == 1 or
+    atmos == 3 or atmos == 10 or atmos == 11 then
         return true
     end
     return false
@@ -98,7 +99,7 @@ local function get_node_cost(pos)
         return 0.02
     end
     local atmos = minetest.get_item_group(node.name, "atmosphere")
-    if atmos == 1 then
+    if atmos == 1 or atmos == 10 or atmos == 11 then
         -- thin
         return 0.025
     end
