@@ -129,7 +129,7 @@ minetest.register_node("ctg_airs:atmos_hot", {
         local players = minetest.get_objects_inside_radius(pos, 10)
         for _, player in ipairs(players) do
             if player:is_player() then
-                local p = get_particle(player, pos)
+                local p = get_particle(player:get_player_name(), pos)
                 minetest.add_particle(p)
             end
         end
