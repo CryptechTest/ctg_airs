@@ -47,7 +47,7 @@ minetest.register_abm({
     neighbors = {"air", "vacuum:atmos_thin", "default:water_source"},
     interval = 3,
     chance = 2,
-    min_y = vacuum.vac_heights.space.start_height,
+    min_y = vacuum.air_heights.planet.start_height,
     action = vacuum.throttle(2500, function(pos)
         minetest.set_node(pos, {
             name = "ctg_airs:atmos_warm"
@@ -61,7 +61,7 @@ minetest.register_abm({
     neighbors = {"group:stone", "group:soil", "group:sand", "group:cracky"},
     interval = 5,
     chance = 5,
-    min_y = vacuum.vac_heights.space.start_height,
+    min_y = vacuum.air_heights.planet.start_height,
     action = vacuum.throttle(2500, function(pos)
         minetest.set_node(pos, {
             name = "ctg_airs:atmos_warm"
@@ -75,7 +75,7 @@ minetest.register_abm({
     neighbors = {"ctg_airs:atmos_hot"},
     interval = 7,
     chance = 3,
-    min_y = vacuum.vac_heights.space.start_height,
+    min_y = vacuum.air_heights.planet.start_height,
     action = vacuum.throttle(2500, function(pos)
         if vacuum.has_in_range(pos, "ctg_airs:atmos_hot", 1, 7) then
             minetest.set_node(pos, {
@@ -91,7 +91,7 @@ minetest.register_abm({
     --neighbors = {},
     interval = 10,
     chance = 8,
-    min_y = vacuum.vac_heights.space.start_height,
+    min_y = vacuum.air_heights.planet.start_height,
     action = vacuum.throttle(2500, function(pos)
         if not vacuum.has_in_range(pos, "ctg_airs:atmos_hot", 1, 5) then
             minetest.set_node(pos, {
@@ -107,7 +107,7 @@ minetest.register_abm({
     neighbors = {"air", "vacuum:atmos_thin", "default:ice", "default:snowblock"},
     interval = 4,
     chance = 2,
-    min_y = vacuum.vac_heights.space.start_height,
+    min_y = vacuum.air_heights.planet.start_height,
     action = vacuum.throttle(2500, function(pos)
         if vacuum.has_in_range(pos, "air", 1, 5) then
             minetest.set_node(pos, {
@@ -131,7 +131,7 @@ minetest.register_abm({
     neighbors = {"default:ice", "default:snowblock"},
     interval = 5,
     chance = 2,
-    min_y = vacuum.vac_heights.space.start_height,
+    min_y = vacuum.air_heights.planet.start_height,
     action = vacuum.throttle(2500, function(pos)
         minetest.set_node(pos, {
             name = "ctg_airs:atmos_warm"
@@ -146,7 +146,7 @@ minetest.register_abm({
     neighbors = {"ctg_airs:atmos_hot", "ctg_airs:atmos_warm"},
     interval = 5,
     chance = 5,
-    min_y = vacuum.vac_heights.space.start_height,
+    min_y = vacuum.air_heights.planet.start_height,
     action = vacuum.throttle(2500, function(pos)
         local node = core.get_node(pos)
         if node.name == "default:ice" then
@@ -181,7 +181,7 @@ minetest.register_abm({
     neighbors = {"ctg_airs:atmos_hot"},
     interval = 5,
     chance = 3,
-    min_y = vacuum.vac_heights.space.start_height,
+    min_y = vacuum.air_heights.planet.start_height,
     action = vacuum.throttle(2500, function(pos)
         minetest.set_node(pos, {
             name = "ctg_airs:atmos_warm"
@@ -196,7 +196,7 @@ minetest.register_abm({
     neighbors = {"group:lava"},
     interval = 4,
     chance = 2,
-    min_y = vacuum.vac_heights.space.start_height,
+    min_y = vacuum.air_heights.planet.start_height,
     action = vacuum.throttle(2500, function(pos)
         minetest.set_node(pos, {
             name = "ctg_airs:atmos_hot"
