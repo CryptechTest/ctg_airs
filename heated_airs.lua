@@ -1,19 +1,22 @@
 
 local get_particle = function (player, pos, hot)
     local size = 16
-    local color = hot == true and "#ff0000" or "#ff2891"
+    local color = "#ff284c"
+    if hot then
+        color = "#ff0000"
+    end
     local texture = {
-        name = "ctg_air_vent_vapor_anim.png^[colorize:" .. color .. "33",
+        name = "ctg_air_vent_vapor_anim.png^[colorize:" .. color .. "38",
         blend = "alpha",
         alpha = 0.5,
-        alpha_tween = {0.5, 0.1},
+        alpha_tween = {0.95, 0.05},
     }
     local p ={
         pos = pos,
-        velocity = {x=0, y=0, z=0},
-        acceleration = {x=0, y=0, z=0},
+        velocity = {x=0, y=0.03, z=0},
+        acceleration = {x=0, y=0.002, z=0},
         -- Spawn particle at pos with velocity and acceleration 
-        expirationtime = 3,
+        expirationtime = math.random(3, 4),
         -- Disappears after expirationtime seconds
         size = size,
         -- Scales the visual size of the particle texture.
@@ -50,7 +53,7 @@ local get_particle = function (player, pos, hot)
             -- Full loop length
         },
         -- Optional, specifies how to animate the particle texture
-        glow = 2,
+        glow = 1,
         -- Optional, specify particle self-luminescence in darkness.
         -- Values 0-14.
         --node = {name = "ignore", param2 = 0},
@@ -90,20 +93,20 @@ minetest.register_node("ctg_airs:atmos_warm", {
 	use_texture_alpha = "blend",
 	inventory_image = "atmos_warm_inv.png",
 	wield_image = "atmos_warm_inv.png",
-	post_effect_color = {a = 18, r = 73, g = 67, b = 40},
+	post_effect_color = {a = 21, r = 73, g = 67, b = 40},
 	groups = {not_in_creative_inventory = 1, atmosphere = 10},
-	waving = 3,
+	--waving = 3,
 	drop = {},
     on_construct = function(pos)
         local players = minetest.get_objects_inside_radius(pos, 10)
         for _, player in ipairs(players) do
-            if player:is_player() then
-                local p = get_particle(player, pos)
+            if player and player:is_player() then
+                local p = get_particle(player:get_player_name(), pos)
                 minetest.add_particle(p)
             end
         end
-    end
-
+    end,
+    on_blast = {},
 })
 
 -- this is just like air, but hot...
@@ -123,17 +126,18 @@ minetest.register_node("ctg_airs:atmos_hot", {
 	wield_image = "atmos_warm_inv.png",
 	post_effect_color = {a = 28, r = 80, g = 54, b = 50},
 	groups = {not_in_creative_inventory = 1, atmosphere = 11},
-	waving = 3,
+	--waving = 3,
 	drop = {},
     on_construct = function(pos)
         local players = minetest.get_objects_inside_radius(pos, 10)
         for _, player in ipairs(players) do
-            if player:is_player() then
-                local p = get_particle(player:get_player_name(), pos)
+            if player and player:is_player() then
+                local p = get_particle(player:get_player_name(), pos, true)
                 minetest.add_particle(p)
             end
         end
-    end
+    end,
+    on_blast = {},
 })
 
 minetest.register_abm({
