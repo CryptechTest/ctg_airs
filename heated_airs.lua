@@ -1,12 +1,18 @@
 
-local get_particle = function (player, pos)
-    local size = 1
+local get_particle = function (player, pos, hot)
+    local size = 16
+    local texture = {
+        name = "ctg_air_vent_vapor_anim.png^[colorize:#ff289133",
+        blend = "alpha",
+        alpha = 0.5,
+        alpha_tween = {0.5, 0.1},
+    }
     local p ={
         pos = pos,
         velocity = {x=0, y=0, z=0},
         acceleration = {x=0, y=0, z=0},
         -- Spawn particle at pos with velocity and acceleration 
-        expirationtime = 3,
+        expirationtime = 1,
         -- Disappears after expirationtime seconds
         size = size,
         -- Scales the visual size of the particle texture.
@@ -39,7 +45,7 @@ local get_particle = function (player, pos)
             -- Width of a frame in pixels
             aspect_h = 16,
             -- Height of a frame in pixels
-            length = 3.0,
+            length = 1,
             -- Full loop length
         },
         -- Optional, specifies how to animate the particle texture
