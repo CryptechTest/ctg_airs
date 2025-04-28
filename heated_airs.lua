@@ -2,8 +2,8 @@
 -- this is just like air, but warm...
 minetest.register_node("ctg_airs:atmos_warm", {
 	description = "Atmosphere Air Warm",
-	drawtype = "liquid",
-    tiles = {"atmos_warm.png^[colorize:#ebc6bc40"},
+	drawtype = "airlike",
+    tiles = {"atmos_warm.png"},
 	paramtype = "light",
 	sunlight_propagates = true,
 	walkable = false,
@@ -23,8 +23,8 @@ minetest.register_node("ctg_airs:atmos_warm", {
 -- this is just like air, but hot...
 minetest.register_node("ctg_airs:atmos_hot", {
 	description = "Atmosphere Air Hot",
-	drawtype = "liquid",
-    tiles = {"atmos_hot.png^[colorize:#ebc6bc50"},
+	drawtype = "airlike",
+    tiles = {"atmos_hot.png"},
 	paramtype = "light",
 	sunlight_propagates = true,
 	walkable = false,
