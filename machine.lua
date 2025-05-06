@@ -423,6 +423,10 @@ function ctg_airs.register_machine(data)
                         meta:set_int("vent_tick", 2);
                     end
 
+                    if power < 0 then
+                        power = 0
+                    end
+
                     meta:set_int("src_time", meta:get_int("src_time") + round(count))
                     meta:set_int("air_power", power);
 

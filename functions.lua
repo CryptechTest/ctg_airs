@@ -6,6 +6,145 @@ local c_atmos_thick = minetest.get_content_id("vacuum:atmos_thick")
 local c_atmos_asteroid = minetest.get_content_id("asteroid:atmos")
 local c_air = minetest.get_content_id("air")
 
+local atmospheres = {}
+local atmospheres_ttl_ms = 60 * 1000;
+
+local function get_atmos_vent(vent_pos)
+    local pos_str = vent_pos.x .. "," .. vent_pos.y .. "," .. vent_pos.z
+    return atmospheres[pos_str]
+end
+
+local function has_atmos_vent(vent_pos)
+    local pos_str = vent_pos.x .. "," .. vent_pos.y .. "," .. vent_pos.z
+    return atmospheres[pos_str] ~= nil
+end
+
+local function rem_atmos_vent(vent_pos)
+    local pos_str = vent_pos.x .. "," .. vent_pos.y .. "," .. vent_pos.z
+    atmospheres[pos_str] = nil
+end
+
+local function check_atmos_vent_stale(vent_pos)
+    if not has_atmos_vent(vent_pos) then
+        -- not tracked, so return as stale
+        return true
+    end
+    local pos_str = vent_pos.x .. "," .. vent_pos.y .. "," .. vent_pos.z
+    local atmos = atmospheres[pos_str]
+    local t_us = core.get_us_time();
+    local elapsed_time_in_ms = (t_us - atmos.time_checked) / 1000.0;
+    if elapsed_time_in_ms > atmospheres_ttl_ms / 3 then
+        return true
+    end
+    return false
+end
+
+local function check_atmos_vent_expired(vent_pos)
+    if not has_atmos_vent(vent_pos) then
+        -- not tracked, so return as expired
+        return true
+    end
+    local pos_str = vent_pos.x .. "," .. vent_pos.y .. "," .. vent_pos.z
+    local atmos = atmospheres[pos_str]
+    local t_us = core.get_us_time();
+    local elapsed_time_in_ms = (t_us - atmos.time_created) / 1000.0;
+    if elapsed_time_in_ms > atmospheres_ttl_ms then
+        return true
+    end
+    return false
+end
+
+local function add_atmos_vent(vent_pos, atmos_nodes, cost)
+    if has_atmos_vent(vent_pos) then
+        return false
+    end
+    local pos_str = vent_pos.x .. "," .. vent_pos.y .. "," .. vent_pos.z
+    local t_us = core.get_us_time();
+    local atmos = {
+        time_created = t_us,
+        time_checked = t_us,
+        nodes = atmos_nodes,
+        cost = cost
+    }
+    atmospheres[pos_str] = atmos
+    return true
+end
+
+local function update_atmos_vent(vent_pos, atmos_nodes, cost)
+    local time_created;
+    local t_us = core.get_us_time();
+    if has_atmos_vent(vent_pos) then
+        time_created = get_atmos_vent(vent_pos).time_created
+    else
+        time_created = t_us
+    end
+    local pos_str = vent_pos.x .. "," .. vent_pos.y .. "," .. vent_pos.z
+    local atmos = {
+        time_created = time_created,
+        time_checked = t_us,
+        nodes = atmos_nodes,
+        cost = cost
+    }
+    atmospheres[pos_str] = atmos
+    return true
+end
+
+local function expand_atmos_vent(vent_pos, atmos_nodes)
+    if add_atmos_vent(vent_pos, atmos_nodes) then
+        return false
+    end
+    local pos_str = vent_pos.x .. "," .. vent_pos.y .. "," .. vent_pos.z
+    local t_us = core.get_us_time();
+    local atmos = atmospheres[pos_str]
+    -- check if has node already
+    local function has_node(n)
+        if atmos.nodes[n] then
+            return true
+        end
+        return false
+    end
+    -- check and add node if not tracked in mapping
+    for str_pos, node in pairs(atmos_nodes) do
+        if not has_node(str_pos) then
+            atmos.nodes[str_pos] = node
+        end
+    end
+    -- update time
+    atmos.time_checked = t_us
+    -- update mapping entry
+    atmospheres[pos_str] = atmos
+    return true
+end
+
+local function shrink_atmos_vent(vent_pos, distance)
+    if not has_atmos_vent(vent_pos) then
+        return false
+    end
+    local pos_str = vent_pos.x .. "," .. vent_pos.y .. "," .. vent_pos.z
+    local t_us = core.get_us_time();
+    local atmos = atmospheres[pos_str]
+    -- get distance from orgin to atmos node
+    local function dist_node(n)
+        return vector.distance(vent_pos, n)
+    end
+    local nodes = {}
+    -- check distance and remove nodes over limit
+    for str_pos, node in pairs(atmos.nodes) do
+        if dist_node(node) <= distance then
+            nodes[str_pos] = node
+        end
+    end
+    -- update time
+    atmos.time_checked = t_us
+    -- update nodes
+    atmos.nodes = nodes
+    -- update mapping entry
+    atmospheres[pos_str] = atmos
+    return true
+end
+
+------------------------------------------------
+
 -- check if enabled
 ctg_airs.machine_enabled = function(meta)
     return meta:get_int("enabled") == 1
@@ -71,8 +210,7 @@ end
 local function is_thin_atmos_node(pos)
     local node = minetest.get_node(pos)
     local atmos = minetest.get_item_group(node.name, "atmosphere")
-    if minetest.get_item_group(node.name, "vacuum") == 1 or atmos == 1 or
-    atmos == 3 or atmos == 10 or atmos == 11 then
+    if minetest.get_item_group(node.name, "vacuum") == 1 or atmos == 1 or atmos == 3 or atmos == 10 or atmos == 11 then
         return true
     end
     return false
@@ -259,12 +397,54 @@ local function traverse_atmos(t, pos, dir, pos_next, r, depth, max_cost)
     return nodes, costs;
 end
 
+local function traverse_atmos_cache(t_us, origin, dir, pos_next, r, depth, max_cost)
+
+    local function handle_local_atmos_cache(vent_pos)
+        if not has_atmos_vent(vent_pos) then
+            -- traverse nearby atmos
+            local nodes, cost = traverse_atmos(t_us, vent_pos, dir, pos_next, r, depth, max_cost);
+            add_atmos_vent(vent_pos, nodes, cost)
+            return nodes, cost
+        else
+            local is_expired = check_atmos_vent_expired(vent_pos)
+            if not is_expired then
+                local is_stale = check_atmos_vent_stale(vent_pos)
+                if not is_stale then
+                    local atmos = get_atmos_vent(vent_pos)
+                    if atmos then
+                        return atmos.nodes, atmos.cost
+                    end
+                else
+                    shrink_atmos_vent(vent_pos, r * 0.67)
+                    local nodes, cost = traverse_atmos(t_us, vent_pos, dir, pos_next, r * 0.88, depth + 1, max_cost);
+                    expand_atmos_vent(vent_pos, nodes)
+                    local atmos = get_atmos_vent(vent_pos)
+                    if atmos then
+                        return atmos.nodes, atmos.cost + cost
+                    end
+                end
+                return {}, 0
+            else
+                -- traverse nearby atmos
+                local nodes, cost = traverse_atmos(t_us, vent_pos, dir, pos_next, r + 1, depth, max_cost);
+                rem_atmos_vent(vent_pos)
+                update_atmos_vent(vent_pos, nodes, cost)
+                return nodes, cost
+            end
+        end
+    end
+
+    return handle_local_atmos_cache(origin)
+
+end
+
 local fill_atmos_near = function(pos, dir, r)
     local origin = vector.subtract(pos, dir);
     local max_cost = r * math.random(7, 20);
     local t0_us = core.get_us_time();
     -- traverse nearby atmos
-    local nodes, cost = traverse_atmos(t0_us, origin, dir, nil, r, 0, max_cost);
+    local nodes, cost = traverse_atmos_cache(t0_us, origin, dir, nil, r, 0, max_cost);
+
     -- minetest.log("found " .. #nodes);
     local count = 0;
     -- iterate over nodes found
@@ -272,14 +452,14 @@ local fill_atmos_near = function(pos, dir, r)
         if (count > 1000) then
             break
         end
+        count = count + 1;
         if is_thin_atmos_node(node_pos) then
-            count = count + 1;
             core.set_node(node_pos, {
                 name = "air"
             })
             if math.random(0, 7) <= 1 then
                 ctg_airs.spawn_particle(node_pos, math.random(-0.001, 0.001), math.random(-0.001, 0.001),
-                    math.random(-0.001, 0.001), 0, 0, 0, math.random(1.8, 3), 10, 1)
+                                        math.random(-0.001, 0.001), 0, 0, 0, math.random(1.8, 3), 10, 1)
             end
         end
     end
@@ -631,7 +811,7 @@ local function process_vent2(pos, power, cost, hasPur)
     local t2_us = meta:get_int("time_run")
     local t_lag = tonumber(meta:get_string("time_lag"))
     local elapsed_time_in_seconds = (t0_us - t2_us) / 1000000.0;
-    if elapsed_time_in_seconds <= 3 then
+    if elapsed_time_in_seconds <= 1 then
         return 0, power + 1
     end
     if t_lag and t_lag > 44 and elapsed_time_in_seconds < 37 then
@@ -640,19 +820,19 @@ local function process_vent2(pos, power, cost, hasPur)
     if t_lag and t_lag > 35 and elapsed_time_in_seconds < 34 then
         return 0, power + 6
     end
-    if t_lag and t_lag > 21 and elapsed_time_in_seconds < 30 then
+    if t_lag and t_lag > 26 and elapsed_time_in_seconds < 30 then
         return 0, power + 5
     end
-    if t_lag and t_lag > 17 and elapsed_time_in_seconds < 25 then
+    if t_lag and t_lag > 20 and elapsed_time_in_seconds < 25 then
         return 0, power + 4
     end
-    if t_lag and t_lag > 10 and elapsed_time_in_seconds < 20 then
+    if t_lag and t_lag > 12 and elapsed_time_in_seconds < 20 then
         return 0, power + 3
     end
     if t_lag and t_lag > 5 and elapsed_time_in_seconds < 15 then
         return 0, power + 2
     end
-    if t_lag and t_lag > 1.67 and elapsed_time_in_seconds < 10 then
+    if t_lag and t_lag > 2.12 and elapsed_time_in_seconds < 10 then
         return 0, power + 1
     end
     if t_lag and t_lag > 0.51 and elapsed_time_in_seconds < 5 then
@@ -801,7 +981,7 @@ local function process_vent2(pos, power, cost, hasPur)
     -- rounding function
     local function fround(n, prec)
         prec = prec or 3
-        local str = string.format("%."..prec.."f", n)
+        local str = string.format("%." .. prec .. "f", n)
         local num = tonumber(str);
         return tostring(num)
     end
@@ -843,7 +1023,7 @@ function ctg_airs.process_vent(pos, power, hasPur)
     if not pos then
         return 0, power
     end
-    if math.random(0, 3) <= 0 then
+    if math.random(0, 9) <= 0 then
         return 0, power
     end
     local node = minetest.get_node(pos)
@@ -863,8 +1043,8 @@ function ctg_airs.process_junc2(junc_pos, dir, networks, power, hasPur)
         local brek = false;
         local tube = ctg_airs.Tube:get_next_tube(junc_pos, i)
         local dest_pos = ctg_airs.Tube:get_connected_node_pos(junc_pos, i)
-        --ctg_airs.Tube:infotext(tube, dest_pos)
-        --local valid, dest_pos, dir = ctg_airs.get_duct_output(junc_pos, i)
+        -- ctg_airs.Tube:infotext(tube, dest_pos)
+        -- local valid, dest_pos, dir = ctg_airs.get_duct_output(junc_pos, i)
         if tube ~= nil or dest_pos ~= nil then
             if dest_pos ~= nil and dest_pos ~= junc_pos and networks[dest_pos] == nil then
                 local dest_node = minetest.get_node(dest_pos)
@@ -947,7 +1127,7 @@ function ctg_airs.process_purifier2(puri_pos, dir, networks, power)
     local dir1 = 0;
     local dir2 = 0;
     if (dir ~= nil) then
-        --minetest.log("dir: " .. dir);
+        -- minetest.log("dir: " .. dir);
         if dir == 0 then
             dir1 = 4 -- ok
             dir2 = 2
