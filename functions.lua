@@ -7,7 +7,7 @@ local c_atmos_asteroid = minetest.get_content_id("asteroid:atmos")
 local c_air = minetest.get_content_id("air")
 
 local atmospheres = {}
-local atmospheres_ttl_ms = 60 * 1000;
+local atmospheres_ttl_ms = 90 * 1000;
 
 local function get_atmos_vent(vent_pos)
     local pos_str = vent_pos.x .. "," .. vent_pos.y .. "," .. vent_pos.z
@@ -358,7 +358,7 @@ local function traverse_atmos(t, pos, dir, pos_next, r, depth, max_cost)
     -- add pos to listing
     nodes[str_pos(pos_next)] = pos_next
     -- depth check
-    local max_depth = math.min(r, 8) + 7
+    local max_depth = math.min(r, 8) + 8
     if depth > max_depth then
         return nodes, costs
     end
@@ -376,7 +376,7 @@ local function traverse_atmos(t, pos, dir, pos_next, r, depth, max_cost)
         -- add to listing
         if not has_pos(nodes, tpos) then
             nodes[str_pos(tpos)] = tpos
-            if math.random(0, 1) <= 0 then
+            if math.random(0, math.max(3, depth)) <= 5 then
                 -- traverse atmos for next pos in chain
                 local atmoss, cost = traverse_atmos(t, pos, dir, tpos, r, depth, max_cost);
                 costs = costs + cost
@@ -440,7 +440,7 @@ end
 
 local fill_atmos_near = function(pos, dir, r)
     local origin = vector.subtract(pos, dir);
-    local max_cost = r * math.random(7, 20);
+    local max_cost = r * math.random(10, 20);
     local t0_us = core.get_us_time();
     -- traverse nearby atmos
     local nodes, cost = traverse_atmos_cache(t0_us, origin, dir, nil, r, 0, max_cost);
@@ -933,13 +933,13 @@ local function process_vent2(pos, power, cost, hasPur)
     -- recalc power
     power = power - (cost + dirty)
 
-    local r = 3
+    local r = 4
     if cost > 9 then
-        r = 11
+        r = 13
     elseif cost > 6 then
-        r = 8
+        r = 9
     elseif cost > 3 then
-        r = 5
+        r = 6
     end
 
     if (hasPur and dirty == 0) then
