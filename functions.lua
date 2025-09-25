@@ -792,7 +792,8 @@ function ctg_airs.process_leak(pos, power)
         minetest.sound_play("air_vent_short", {
             pos = pos,
             gain = 0.071,
-            pitch = math.random(0.5, 1)
+            pitch = math.random(0.5, 1),
+            max_hear_distance = 18
         })
     end
 
@@ -896,13 +897,14 @@ local function process_vent2(pos, power, cost, hasPur)
     end)
 
     if vacuum.is_pos_in_spawn(pos) then
-        if ((cost > 0 and math.random(0, 16) == 0) and power > -5) then
+        if ((cost > 0 and math.random(0, 20) == 0) and power > -5) then
             local r = math.random(0, 2)
             minetest.after(r, function()
                 minetest.sound_play("air_vent_short", {
                     pos = pos,
                     gain = 0.007,
-                    pitch = 0.6 + math.random(-0.001, 0.001)
+                    pitch = 0.6 + math.random(-0.001, 0.001),
+                    max_hear_distance = 20
                 })
             end)
         end
@@ -949,13 +951,14 @@ local function process_vent2(pos, power, cost, hasPur)
     -- recalc power
     power = math.max(power, tcost * 0.5);
 
-    if ((count > 0 and math.random(0, 20) == 0) and power > -5) then
+    if ((count > 0 and math.random(0, 25) == 0) and power > -5) then
         local r = math.random(0, 3)
         minetest.after(r, function()
             minetest.sound_play("air_vent_short", {
                 pos = pos,
                 gain = 0.008 + (count * 0.002),
-                pitch = 0.6 + math.random(-0.1, 0.25)
+                pitch = 0.6 + math.random(-0.1, 0.25),
+                max_hear_distance = 18
             })
         end)
     end
