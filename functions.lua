@@ -358,7 +358,7 @@ local function traverse_atmos(t, pos, dir, pos_next, r, depth, max_cost)
     -- add pos to listing
     nodes[str_pos(pos_next)] = pos_next
     -- depth check
-    local max_depth = math.min(r, 8) + 5
+    local max_depth = math.min(r, 8) + 7
     if depth > max_depth then
         return nodes, costs
     end
@@ -376,7 +376,7 @@ local function traverse_atmos(t, pos, dir, pos_next, r, depth, max_cost)
         -- add to listing
         if not has_pos(nodes, tpos) then
             nodes[str_pos(tpos)] = tpos
-            if math.random(0, 2) <= 0 then
+            if math.random(0, 1) <= 0 then
                 -- traverse atmos for next pos in chain
                 local atmoss, cost = traverse_atmos(t, pos, dir, tpos, r, depth, max_cost);
                 costs = costs + cost
