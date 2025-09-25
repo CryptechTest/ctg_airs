@@ -949,7 +949,7 @@ local function process_vent2(pos, power, cost, hasPur)
     -- recalc power
     power = math.max(power, tcost * 0.5);
 
-    if ((count > 0 and math.random(0, 10) == 0) and power > -5) then
+    if ((count > 0 and math.random(0, 20) == 0) and power > -5) then
         local r = math.random(0, 3)
         minetest.after(r, function()
             minetest.sound_play("air_vent_short", {
