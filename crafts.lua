@@ -116,8 +116,8 @@ minetest.register_craft({
 
 minetest.register_craft({
     type = "shapeless",
-    output = "ctg_airs:air_filter_basic_dirty 1",
-    recipe = {"ctg_airs:air_filter_basic", c, c}
+    output = "ctg_airs:air_filter_basic 1",
+    recipe = {"ctg_airs:air_filter_basic_dirty", c, c}
 })
 
 -- airtight tube wall
