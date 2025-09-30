@@ -255,6 +255,9 @@ function ctg_airs.register_machine(data)
 
     local formspec = update_formspec(data, nil, false, false, input_size)
     local tube = technic.new_default_tube()
+    if data.tube then
+        tube.input_inventory = 'dst'
+    end
     if data.can_insert then
         tube.can_insert = data.can_insert
     end
