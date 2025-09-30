@@ -11,12 +11,13 @@ local d = "ctg_airs:air_duct_S"
 local s = "default:steel_ingot"
 local c = "ctg_machines:carbon_dust"
 local b = "basic_materials:aluminum_bar"
-local r = "basic_materials:aluminum_strip"
+local s = "basic_materials:aluminum_strip"
 local i = "technic:machine_casing"
 local l = "basic_materials:plastic_sheet"
 local o = "basic_materials:motor"
 local w = "scifi_nodes:white2"
 local ev = "ship_parts:eviromental_sys"
+local r = "technic:rubber"
 
 local f = "ctg_airs:lv_air_fan"
 local h = "ctg_airs:lv_air_handler"
@@ -93,12 +94,12 @@ minetest.register_craft({
 -- fan
 minetest.register_craft({
     output = "ctg_airs:lv_air_fan",
-    recipe = {{t, o, t}, {r, b, r}, {l, i, l}}
+    recipe = {{t, o, t}, {s, b, s}, {l, i, l}}
 })
 
 minetest.register_craft({
     output = "ctg_airs:mv_air_fan",
-    recipe = {{r, o, r}, {"", f, ""}, {"", tt, ""}}
+    recipe = {{s, o, s}, {"", f, ""}, {"", tt, ""}}
 })
 
 -- purifier
@@ -110,7 +111,13 @@ minetest.register_craft({
 -- air filter
 minetest.register_craft({
     output = "ctg_airs:air_filter_basic 5",
-    recipe = {{c, c, c}, {c, c, c}, {r, nt, r}}
+    recipe = {{c, c, c}, {c, c, c}, {r, u, r}}
+})
+
+minetest.register_craft({
+    type = "shapeless",
+    output = "ctg_airs:air_filter_basic_dirty 1",
+    recipe = {"ctg_airs:air_filter_basic", c, c}
 })
 
 -- airtight tube wall
