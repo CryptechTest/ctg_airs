@@ -47,12 +47,12 @@ minetest.register_craft({
 -- vent
 minetest.register_craft({
     output = "ctg_airs:air_duct_vent 6",
-    recipe = {{a, t, a}, {r, r, r}, {a, t, a}}
+    recipe = {{a, t, a}, {s, s, s}, {a, t, a}}
 })
 
 minetest.register_craft({
     output = "ctg_airs:air_duct_vent 4",
-    recipe = {{d, "", d}, {r, r, r}, {d, "", d}}
+    recipe = {{d, "", d}, {s, s, s}, {d, "", d}}
 })
 
 -- vent clean
@@ -65,12 +65,12 @@ minetest.register_craft({
 -- vent lite
 minetest.register_craft({
     output = "ctg_airs:air_duct_vent_lite 6",
-    recipe = {{a, t, a}, {r, "", r}, {a, t, a}}
+    recipe = {{a, t, a}, {s, "", s}, {a, t, a}}
 })
 
 minetest.register_craft({
     output = "ctg_airs:air_duct_vent_lite 4",
-    recipe = {{d, "", d}, {r, "", r}, {d, "", d}}
+    recipe = {{d, "", d}, {s, "", s}, {d, "", d}}
 })
 
 -- vent lite clean
