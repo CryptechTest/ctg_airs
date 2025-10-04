@@ -19,7 +19,7 @@ local function round(v)
     return math.floor(v + 0.5)
 end
 
-local function update_formspec3(data, meta, running, enabled)
+local function update_formspec(data, meta, running, enabled)
     return ctg_airs.update_formspec(data, meta, running, enabled, 0, 0)
 end
 
@@ -51,7 +51,6 @@ function ctg_airs.register_machine_fan(data)
         active_groups[k] = v
     end
 
-    local formspec = update_formspec3(data, nil, false, false)
     local tube = technic.new_default_tube()
     if data.can_insert then
         tube.can_insert = data.can_insert
@@ -105,7 +104,7 @@ function ctg_airs.register_machine_fan(data)
                 meta:set_string("infotext", machine_desc_tier .. S(" Disabled"))
                 meta:set_int(tier .. "_EU_demand", 0)
                 meta:set_int("src_time", 0)
-                local formspec = update_formspec3(data, meta, false, enabled)
+                local formspec = update_formspec(data, meta, false, enabled)
                 meta:set_string("formspec", formspec)
                 return
             end
@@ -115,12 +114,12 @@ function ctg_airs.register_machine_fan(data)
                 meta:set_string("infotext", machine_desc_tier .. S(" Idle - No air nearby"))
                 meta:set_int(tier .. "_EU_demand", 0)
                 meta:set_int("src_time", 0)
-                local formspec = update_formspec3(data, meta, false, enabled)
+                local formspec = update_formspec(data, meta, false, enabled)
                 meta:set_string("formspec", formspec)
                 return
             end
 
-            local formspec = update_formspec3(data, meta, true, enabled)
+            local formspec = update_formspec(data, meta, true, enabled)
             meta:set_string("formspec", formspec)
             meta:set_int(tier .. "_EU_demand", machine_demand[EU_upgrade + 1])
             technic.swap_node(pos, machine_node .. "_active")
@@ -232,6 +231,8 @@ function ctg_airs.register_machine_fan(data)
             -- inv:set_size("dst", 4)
             inv:set_size("upgrade1", 1)
             inv:set_size("upgrade2", 1)
+            local formspec = update_formspec(data, meta, false, false, 0)
+            meta:set_string("formspec", formspec)
         end,
         can_dig = technic.machine_can_dig,
         allow_metadata_inventory_put = technic.machine_inventory_put,
@@ -262,7 +263,7 @@ function ctg_airs.register_machine_fan(data)
                     enabled = true
                 end
             end
-            local formspec = update_formspec3(data, meta, false, enabled)
+            local formspec = update_formspec(data, meta, false, enabled)
             meta:set_string("formspec", formspec .. form_buttons)
         end,
         mesecons = {
@@ -367,7 +368,7 @@ function ctg_airs.register_machine_fan(data)
                     enabled = true
                 end
             end
-            local formspec = update_formspec3(data, meta, false, enabled)
+            local formspec = update_formspec(data, meta, false, enabled)
             meta:set_string("formspec", formspec .. form_buttons)
         end,
         mesecons = {

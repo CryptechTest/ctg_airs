@@ -26,12 +26,15 @@ local function fround(n, prec)
     return tostring(num)
 end
 
-local function update_formspec2(data, meta, running, enabled, size, percent)
-    local input_size = size
+local function update_formspec(data, meta, running, enabled, size, percent)
     local machine_desc = data.machine_desc
     local typename = data.typename
     local tier = data.tier
     local ltier = string.lower(tier)
+    local eu_input = meta:get_int(tier .. "_EU_input")
+    local eu_demand = meta:get_int(tier .. "_EU_demand")
+    local input_size = size ~= nil and size or 1
+    local percent = percent ~= nil and percent or 0
     local formspec = nil
     if typename == 'air_handler' or typename == 'air_handler_admin' then
         local btnName = "State: "
@@ -96,21 +99,29 @@ local function update_formspec2(data, meta, running, enabled, size, percent)
 
         local p = 0
         if meta then
-            if data.power ~= nil and tonumber(meta:get_string("air_power")) ~= nil then
-                p = data.power - tonumber(meta:get_string("air_power"));
+            local air_power = tonumber(meta:get_string("air_power"))
+            if data.power ~= nil and air_power ~= nil then
+                p = math.max(0, data.power - air_power)
             end
         end
-        local power = "label[0.5,1.1;" .. minetest.colorize('#429dff', "Air Power") .. "]" .. "label[0.5,1.5;" ..
-                          "Max: " .. data.power .. "]" .. "label[0.5,1.86;" .. "Now: " .. p .. "]"
+        local air_field = "label[0.3,0.5;" .. minetest.colorize('#429dff', "Air Power") .. "]" .. 
+                    "label[0.3,0.85;" .. "Max:  " .. data.power .. "]" .. 
+                    "label[0.3,1.2;" .. "Now:  " .. p .. "]"
+
+        local power_field = "label[0.3,1.675;" .. minetest.colorize('#21daff', "Energy Stats") .. "]"
+        local input_field = "label[0.3,2.0;Input]label[0.3,2.35;" .. minetest.colorize('#03fc56', "+" .. eu_input) .. "]"
+        local demand_field = "label[1.3,2.0;Demand]label[1.3,2.35;" .. minetest.colorize('#fca903', "-" .. eu_demand) .. "]"
+        local energy_field = power_field .. input_field .. demand_field
 
         formspec = "size[8,9;]" .. "list[current_name;src;" .. (4 - input_size) .. ",1.5;" .. input_size .. ",1;]" ..
-                       "list[current_name;dst;5,1;2,2;]" .. "list[current_player;main;0,5;8,4;]" .. "label[0,0;" ..
-                       machine_desc:format(tier) .. "]" .. -- "image[4,1;1,1;".. image .."]"..
-        "image[4,1;1,1;" .. image .. "]" .. lag_stat .. power .. -- "animated_image[4,1;1,1;an_img;recycler_front_active.png;4;800;1]"..
-        "image[4,2.0;1,1;gui_furnace_arrow_bg.png^[lowpart:" .. tostring(percent) ..
-                       ":gui_furnace_arrow_fg.png^[transformR270]" .. "listring[current_name;dst]" ..
-                       "listring[current_player;main]" .. "listring[current_name;src]" ..
-                       "listring[current_player;main]" .. "button[3,3;4,1;toggle;" .. btnName .. "]"
+                    "list[current_name;dst;5,1;2,2;]" .. "list[current_player;main;0,5;8,4;]" .. "label[0,0;" ..
+                    machine_desc:format(tier) .. "]" .. -- "image[4,1;1,1;".. image .."]"..
+                    "image[4,1;1,1;" .. image .. "]" .. lag_stat .. air_field .. energy_field .. 
+                    -- "animated_image[4,1;1,1;an_img;recycler_front_active.png;4;800;1]"..
+                    "image[4,2.0;1,1;gui_furnace_arrow_bg.png^[lowpart:" .. tostring(percent) ..
+                    ":gui_furnace_arrow_fg.png^[transformR270]" .. "listring[current_name;dst]" ..
+                    "listring[current_player;main]" .. "listring[current_name;src]" ..
+                    "listring[current_player;main]" .. "button[3,3;4,1;toggle;" .. btnName .. "]"
     elseif typename == 'air_fan' then
         local btnName = "State: "
         if enabled then
@@ -134,29 +145,43 @@ local function update_formspec2(data, meta, running, enabled, size, percent)
                     clag = minetest.colorize('#21ffb5', lag .. " ms")
                 end
             end
-            lag_stat = "label[3.5,0.5;Lag:]" .. "label[4,0.5;" .. clag .. "]"
+            lag_stat = "label[3.5,0.5;Lag:]" .. "label[4.125,0.5;" .. clag .. "]"
         end
+
+        local p = 0
+        if meta then
+            local air_power = tonumber(meta:get_string("air_power"))
+            if data.power ~= nil and air_power ~= nil then
+                p = math.max(0, data.power - air_power)
+            end
+        end
+        local air_field = "label[0.3,0.5;" .. minetest.colorize('#429dff', "Air Power") .. "]" .. 
+                    "label[0.3,0.85;" .. "Max:  " .. data.power .. "]" .. 
+                    "label[0.3,1.2;" .. "Now:  " .. p .. "]"
+
+        local power_field = "label[0.3,1.675;" .. minetest.colorize('#21daff', "Energy Stats") .. "]"
+        local input_field = "label[0.3,2.0;Input]label[0.3,2.35;" .. minetest.colorize('#03fc56', "+" .. eu_input) .. "]"
+        local demand_field = "label[1.3,2.0;Demand]label[1.3,2.35;" .. minetest.colorize('#fca903', "-" .. eu_demand) .. "]"
+        local energy_field = power_field .. input_field .. demand_field
 
         local image = "ctg_fan_icon.png"
         if (running) then
             image = "ctg_fan_on_icon.png"
         end
-        formspec = "size[8,9;]" .. "list[current_player;main;0,5;8,4;]" .. "label[0,0;" .. machine_desc:format(tier) ..
-                       "]" .. "image[4,1;1,1;" .. image .. "]" .. lag_stat .. "listring[current_player;main]" ..
-                       "listring[current_player;main]" .. "button[3,3;4,1;toggle;" .. btnName .. "]"
+        formspec = "size[8,9;]" .. 
+                    "list[current_player;main;0,5;8,4;]" .. "label[0,0;" .. machine_desc:format(tier) .. "]" .. 
+                    "image[4,1;1,1;" .. image .. "]" .. lag_stat  .. air_field .. energy_field .. 
+                    "listring[current_player;main]" .. "listring[current_player;main]" .. 
+                    "button[3,3;4,1;toggle;" .. btnName .. "]"
     end
 
     if data.upgrade then
         formspec = formspec .. "list[current_name;upgrade1;1,3;1,1;]" .. "list[current_name;upgrade2;2,3;1,1;]" ..
-                       "label[1,4;" .. S("Upgrade Slots") .. "]" .. "listring[current_name;upgrade1]" ..
-                       "listring[current_player;main]" .. "listring[current_name;upgrade2]" ..
-                       "listring[current_player;main]"
+                    "label[1,4;" .. S("Upgrade Slots") .. "]" .. "listring[current_name;upgrade1]" ..
+                    "listring[current_player;main]" .. "listring[current_name;upgrade2]" ..
+                    "listring[current_player;main]"
     end
     return formspec
-end
-
-local  function update_formspec(data, meta, running, enabled, size)
-    return update_formspec2(data, meta, running, enabled, size, 0)
 end
 
 function ctg_airs.update_formspec(data, meta, running, enabled, size)
@@ -253,7 +278,6 @@ function ctg_airs.register_machine(data)
         active_groups[k] = v
     end
 
-    local formspec = update_formspec(data, nil, false, false, input_size)
     local tube = technic.new_default_tube()
     if data.tube then
         tube.input_inventory = 'dst'
@@ -362,7 +386,7 @@ function ctg_airs.register_machine(data)
             end
 
             local item_percent = (math.floor(meta:get_int("src_time") / round(result.time * 250) * 100))
-            local formspec = update_formspec2(data, meta, true, enabled, input_size, item_percent)
+            local formspec = update_formspec(data, meta, true, enabled, input_size, item_percent)
             meta:set_string("formspec", formspec .. form_buttons)
             meta:set_int(tier .. "_EU_demand", machine_demand[EU_upgrade + 1])
             if (item_percent > 20) then
@@ -694,6 +718,7 @@ function ctg_airs.register_machine(data)
                     meta:set_int("enabled", 1)
                 end
             end
+            local formspec = update_formspec(data, meta, false, meta:get_int("enabled") == 1, input_size)
             meta:set_string("formspec", formspec .. form_buttons)
         end,
         mesecons = {
@@ -773,6 +798,7 @@ function ctg_airs.register_machine(data)
                     meta:set_int("enabled", 1)
                 end
             end
+            local formspec = update_formspec(data, meta, false, meta:get_int("enabled") == 1, input_size)
             meta:set_string("formspec", formspec .. form_buttons)
         end,
         mesecons = {
