@@ -573,22 +573,21 @@ function ctg_airs.register_machine(data)
         on_construct = function(pos)
             local node = minetest.get_node(pos)
             local meta = minetest.get_meta(pos)
-
             local form_buttons = ""
             if not string.find(node.name, ":lv_") and not string.find(node.name, ":mv_") then
                 form_buttons = fs_helpers.cycling_button(meta, pipeworks.button_base, "splitstacks",
                     {pipeworks.button_off, pipeworks.button_on}) .. pipeworks.button_label
             end
-
             meta:set_string("infotext", machine_desc:format(tier))
             meta:set_int("tube_time", 0)
-            meta:set_string("formspec", formspec .. form_buttons)
             local inv = meta:get_inventory()
             inv:set_size("src", input_size)
             inv:set_size("dst", 4)
             inv:set_size("upgrade1", 1)
             inv:set_size("upgrade2", 1)
             meta:set_int("enabled", 1)
+            local formspec = update_formspec(data, meta, false, false, input_size)
+            meta:set_string("formspec", formspec .. form_buttons)
         end,
         can_dig = technic.machine_can_dig,
         allow_metadata_inventory_put = technic.machine_inventory_put,
