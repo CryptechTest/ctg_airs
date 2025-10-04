@@ -101,7 +101,7 @@ local function update_formspec(data, meta, running, enabled, size, percent)
         if meta then
             local air_power = tonumber(meta:get_string("air_power"))
             if data.power ~= nil and air_power ~= nil then
-                p = math.max(0, data.power - air_power)
+                p = math.max(0, air_power)
             end
         end
         local air_field = "label[0.3,0.5;" .. minetest.colorize('#429dff', "Air Power") .. "]" .. 
