@@ -166,3 +166,39 @@ minetest.register_node("ctg_airs:air_duct_vent_lite_dirty", {
 ctg_airs.vent_active = function(meta)
     return meta:get_int("active") == 1
 end
+
+-- vents monitor check
+minetest.register_abm({
+    label = "vents reset monitor",
+    nodenames = {"ctg_airs:air_duct_vent", "ctg_airs:air_duct_vent_lite", "ctg_airs:air_duct_vent_dirty", "ctg_airs:air_duct_vent_lite_dirty"},
+    --neighbors = {"vacuum:vacuum"},
+    interval = 20,
+    chance = 1,
+    --min_y = vacuum.vac_heights.space.start_height,
+    action = function(pos)
+        
+        local node = core.get_node(pos)
+        local meta = core.get_meta(pos)
+        local name = node.name
+
+        local t0_us = core.get_us_time();
+        local t2_us = meta:get_int("time_run")
+        local elapsed_time_in_seconds = (t0_us - t2_us) / 1000000.0;
+        if elapsed_time_in_seconds <= 30 then
+            return
+        end
+
+        meta:set_int("active", 0)
+
+        if name == "ctg_airs:air_duct_vent" then
+            meta:set_string("infotext", S("Vent"))
+        elseif name == "ctg_airs:air_duct_vent_lite" then
+            meta:set_string("infotext", S("Lite Vent"))
+        elseif name == "ctg_airs:air_duct_vent_dirty" then
+            meta:set_string("infotext", S("Dirty Vent"))
+        elseif name == "ctg_airs:air_duct_vent_lite_dirty" then
+            meta:set_string("infotext", S("Dirty Lite Vent"))
+        end
+
+    end
+})
