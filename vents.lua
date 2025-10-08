@@ -182,7 +182,7 @@ minetest.register_abm({
         local name = node.name
 
         local t0_us = core.get_us_time();
-        local t2_us = tonumber(meta:get_string("time_run"))
+        local t2_us = tonumber(meta:get_string("time_run")) or t0_us
         local elapsed_time_in_seconds = (t0_us - t2_us) / 1000000.0;
         if elapsed_time_in_seconds <= 30 then
             return
