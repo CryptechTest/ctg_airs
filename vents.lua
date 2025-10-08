@@ -182,13 +182,16 @@ minetest.register_abm({
         local name = node.name
 
         local t0_us = core.get_us_time();
-        local t2_us = meta:get_int("time_run")
+        local t2_us = tonumber(meta:get_string("time_run"))
         local elapsed_time_in_seconds = (t0_us - t2_us) / 1000000.0;
         if elapsed_time_in_seconds <= 30 then
             return
         end
 
-        meta:set_int("active", 0)
+        if meta:get_int("active") > 0 then
+            meta:set_int("active", 0)
+            return
+        end
 
         if name == "ctg_airs:air_duct_vent" then
             meta:set_string("infotext", S("Vent"))

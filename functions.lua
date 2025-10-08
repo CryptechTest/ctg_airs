@@ -812,7 +812,7 @@ local function process_vent2(pos, power, cost, hasPur)
     end
 
     local t0_us = minetest.get_us_time();
-    local t2_us = meta:get_int("time_run")
+    local t2_us = tonumber(meta:get_string("time_run"))
     local t_lag = tonumber(meta:get_string("time_lag"))
     local elapsed_time_in_seconds = (t0_us - t2_us) / 1000000.0;
     if elapsed_time_in_seconds <= 1 then
@@ -971,7 +971,7 @@ local function process_vent2(pos, power, cost, hasPur)
     local elapsed_time_in_seconds = (t1_us - t0_us) / 1000000.0;
     local elapsed_time_in_milliseconds = elapsed_time_in_seconds * 1000;
     meta:set_string("time_lag", tostring(elapsed_time_in_milliseconds));
-    meta:set_int("time_run", t1_us);
+    meta:set_string("time_run", tostring(t1_us));
     -- set active
     meta:set_int("active", 1)
 
