@@ -7,7 +7,7 @@ local c_atmos_asteroid = minetest.get_content_id("asteroid:atmos")
 local c_air = minetest.get_content_id("air")
 
 local atmospheres = {}
-local atmospheres_ttl_ms = 90 * 1000;
+local atmospheres_ttl_ms = 120 * 1000;
 
 local function get_atmos_vent(vent_pos)
     local pos_str = vent_pos.x .. "," .. vent_pos.y .. "," .. vent_pos.z
@@ -33,7 +33,7 @@ local function check_atmos_vent_stale(vent_pos)
     local atmos = atmospheres[pos_str]
     local t_us = core.get_us_time();
     local elapsed_time_in_ms = (t_us - atmos.time_checked) / 1000.0;
-    if elapsed_time_in_ms > atmospheres_ttl_ms / 3 then
+    if elapsed_time_in_ms > atmospheres_ttl_ms / 4 then
         return true
     end
     return false
@@ -786,7 +786,7 @@ function ctg_airs.process_leak(pos, power)
     manip:set_data(data)
     manip:write_to_map()
 
-    power = power - (20 + count)
+    power = power - (25 + count)
 
     if ((count > 0 or math.random(0, 5) == 0)) then
         minetest.sound_play("air_vent_short", {
@@ -802,6 +802,9 @@ function ctg_airs.process_leak(pos, power)
 end
 
 local function process_vent2(pos, power, cost, hasPur)
+    if power <= 0 then
+        return 0, power
+    end
     local meta = minetest.get_meta(pos)
     if power - cost <= 0 then
         meta:set_int("active", 0)
@@ -816,25 +819,25 @@ local function process_vent2(pos, power, cost, hasPur)
         return 0, power + 1
     end
     if t_lag and t_lag > 44 and elapsed_time_in_seconds < 37 then
-        return 0, power + 7
+        return 0, power - 7
     end
     if t_lag and t_lag > 35 and elapsed_time_in_seconds < 34 then
-        return 0, power + 6
+        return 0, power - 6
     end
     if t_lag and t_lag > 26 and elapsed_time_in_seconds < 30 then
-        return 0, power + 5
+        return 0, power - 5
     end
     if t_lag and t_lag > 20 and elapsed_time_in_seconds < 25 then
-        return 0, power + 4
+        return 0, power - 4
     end
     if t_lag and t_lag > 12 and elapsed_time_in_seconds < 20 then
-        return 0, power + 3
+        return 0, power - 3
     end
     if t_lag and t_lag > 5 and elapsed_time_in_seconds < 15 then
-        return 0, power + 2
+        return 0, power - 2
     end
     if t_lag and t_lag > 2.12 and elapsed_time_in_seconds < 10 then
-        return 0, power + 1
+        return 0, power - 1
     end
     if t_lag and t_lag > 0.51 and elapsed_time_in_seconds < 5 then
         return 0, power - 0
@@ -931,7 +934,7 @@ local function process_vent2(pos, power, cost, hasPur)
     -- get dirty group
     local dirty = minetest.get_item_group(node.name, "vent_dirty") or 0
     -- recalc power
-    power = power - (cost + dirty)
+    power = math.max(0, power - (cost + dirty))
 
     local r = 4
     if cost > 9 then
@@ -949,7 +952,7 @@ local function process_vent2(pos, power, cost, hasPur)
     -- fill area with air
     local count, tcost, travs = fill_atmos_near(dir_pos, dir, r - (dirty * 2));
     -- recalc power
-    power = math.max(power, tcost * 0.5);
+    power = power - (tcost * 0.01)
 
     if ((count > 0 and math.random(0, 25) == 0) and power > -5) then
         local r = math.random(0, 3)
@@ -1009,13 +1012,13 @@ local function process_vent2(pos, power, cost, hasPur)
     -- vent node stat info
     local stat = n_lag .. n_eff .. n_cost
     if node.name == "ctg_airs:air_duct_vent" then
-        meta:set_string("infotext", S("Vent") .. stat)
+        meta:set_string("infotext", S("Vent - Active") .. stat)
     elseif node.name == "ctg_airs:air_duct_vent_dirty" then
-        meta:set_string("infotext", S("Dirty Vent") .. stat)
+        meta:set_string("infotext", S("Dirty Vent - Active") .. stat)
     elseif node.name == "ctg_airs:air_duct_vent_lite" then
-        meta:set_string("infotext", S("Lite Vent") .. stat)
+        meta:set_string("infotext", S("Lite Vent - Active") .. stat)
     elseif node.name == "ctg_airs:air_duct_vent_lite_dirty" then
-        meta:set_string("infotext", S("Dirty Lite Vent") .. stat)
+        meta:set_string("infotext", S("Dirty Lite Vent - Active") .. stat)
     end
 
     -- minetest.log("making atmos..")
@@ -1026,7 +1029,7 @@ function ctg_airs.process_vent(pos, power, hasPur)
     if not pos then
         return 0, power
     end
-    if math.random(0, 9) <= 0 then
+    if math.random(0, 15) <= 1 then
         return 0, power
     end
     local node = minetest.get_node(pos)
@@ -1040,6 +1043,9 @@ function ctg_airs.process_junc(junc_pos, dir, power, hasPur)
 end
 
 function ctg_airs.process_junc2(junc_pos, dir, networks, power, hasPur)
+    if power <= 0 then
+        return 0, power
+    end
     local count = 0;
     for i = 0, 6 do
         local cnt = 0;
@@ -1120,12 +1126,15 @@ end
 
 function ctg_airs.process_purifier2(puri_pos, dir, networks, power)
     if (not puri_pos) then
-        return 0, 0
+        return 0, power
     end
     local count = 0;
     if (dir == nil) then
         minetest.log("process_purifier2: dir " .. 'nil');
-        return 0, 0
+        return 0, power
+    end
+    if power <= 0 then
+        return 0, power
     end
     local dir1 = 0;
     local dir2 = 0;

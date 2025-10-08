@@ -411,7 +411,7 @@ function ctg_airs.register_machine(data)
 
                 local hasPur = typename == "air_handler_admin";
                 local count = 0;
-                local power = air_power or 0
+                local power = air_power;
                 local valid, dest_pos, dir = ctg_airs.get_duct_output_up(pos)
                 --ctg_airs.Tube:infotext(pos, dest_pos)
                 -- minetest.log(tostring(valid))
@@ -449,20 +449,18 @@ function ctg_airs.register_machine(data)
                     else
                         meta:set_int("vent_tick", 2);
                     end
-
-                    if power < 0 then
-                        power = 0
-                    end
+                    
+                    local n_power = air_power - power
 
                     meta:set_int("src_time", meta:get_int("src_time") + round(count))
-                    meta:set_int("air_power", power);
+                    meta:set_int("air_power", n_power);
 
-                    if math.random(0, 2) > 0 then
+                    if math.random(0, 3) > 1 then
                         ctg_airs.spawn_particle(pos, 0, 0, 0, math.random(-0.1, 0.1), math.random(-0.1, 0.1),
                             math.random(-0.1, 0.2), 3)
                     end
 
-                    if (power ~= air_power and math.random(0, 5) == 0) then
+                    if (power ~= air_power and math.random(0, 10) == 0) then
                         minetest.sound_play("air_vent_short", {
                             pos = pos,
                             gain = 0.02 + (count * 0.001),

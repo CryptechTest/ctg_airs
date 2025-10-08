@@ -76,40 +76,40 @@ ctg_airs.register_air_handler_machine_admin({
     tier = "LV",
     demand = {0},
     speed = 1,
-    power = 300
+    power = 420
 })
 
 ctg_airs.register_air_handler_machine({
     tier = "LV",
-    demand = {1050, 900, 750},
+    demand = {1050, 900, 800},
     speed = 0.4,
-    power = 128
+    power = 210
 })
 
 ctg_airs.register_air_handler_machine({
     tier = "MV",
-    demand = {2200, 2000, 1700},
+    demand = {2200, 2000, 1850},
     speed = 0.32,
-    power = 200
+    power = 380
 })
 
 ctg_airs.register_air_fan_machine({
     tier = "LV",
     demand = {500},
     speed = 1,
-    power = 32
+    power = 56
 })
 
 ctg_airs.register_air_fan_machine({
     tier = "MV",
     demand = {1200},
     speed = 0.8,
-    power = 76
+    power = 110
 })
 
 ctg_airs.register_air_purifier_machine({
     tier = "LV",
     demand = {250},
     speed = 1,
-    power = 32
+    power = 48
 })
