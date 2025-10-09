@@ -498,6 +498,10 @@ function ctg_airs.register_machine(data)
                 elseif elapsed_time_in_milliseconds >= 5 then
                     meta:set_int("vent_tick", meta:get_int("vent_tick") + 1);
                 end
+
+                if meta:get_int("vent_tick") < 0 then
+                    meta:set_int("vent_tick", 1);
+                end
             end
 
             if meta:get_int("src_time") < round(result.time * 250) then
