@@ -289,7 +289,23 @@ function ctg_airs.register_machine(data)
         tube.insert_object = data.insert_object
     end
 
+    local is_player_near = function(pos)
+        local objs = core.get_objects_inside_radius(pos, 96)
+        for _, obj in pairs(objs) do
+            if obj:is_player() then
+                return true;
+            end
+        end
+        return false;
+    end
+
     local run = function(pos, node)
+        if node.name == "ignore" then
+            return
+        end
+        if not is_player_near(pos) then
+            return
+        end
         local meta = minetest.get_meta(pos)
         local inv = meta:get_inventory()
         local eu_input = meta:get_int(tier .. "_EU_input")
@@ -500,7 +516,7 @@ function ctg_airs.register_machine(data)
                 end
 
                 if meta:get_int("vent_tick") < 0 then
-                    meta:set_int("vent_tick", 1);
+                    meta:set_int("vent_tick", 3);
                 end
             end
 

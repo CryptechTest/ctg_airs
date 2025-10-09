@@ -185,6 +185,11 @@ minetest.register_abm({
         local t2_us = tonumber(meta:get_string("time_run")) or 0
         local elapsed_time_in_seconds = (t0_us - t2_us) / 1000000.0;
         if elapsed_time_in_seconds <= 30 then
+            if elapsed_time_in_seconds < 0 then
+                meta:set_string("time_run", 0)
+                meta:set_int("active", 0)
+                meta:set_string("time_lag_list", "")
+            end
             return
         end
 

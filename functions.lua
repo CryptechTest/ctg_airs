@@ -176,28 +176,64 @@ function ctg_airs.get_color_range_text(val, val_max)
     return col
 end
 
-local check_node_tube = function(pos)
+local function list_set(list)
+    local set = {}
+    for _, l in ipairs(list) do set[l] = true end
+    return set
+end
+
+local is_duct_tube = function(pos)
     local ducts = {"ctg_airs:air_duct_S", "ctg_airs:air_duct_S2", "ctg_airs:air_duct_A", "ctg_airs:air_duct_A2"}
 
     local node = minetest.get_node(pos)
 
-    if ducts[node.name] ~= nil then
+    if list_set(ducts)[node.name] ~= nil then
         return true
     end
     return false
 end
 
 local is_duct_vent = function(pos)
-    local vent = {"ctg_airs:air_duct_vent", "ctg_airs:air_duct_vent_dirty", "ctg_airs:air_duct_vent_lite",
+    local vents = {"ctg_airs:air_duct_vent", "ctg_airs:air_duct_vent_dirty", "ctg_airs:air_duct_vent_lite",
                   "ctg_airs:air_duct_vent_lite_dirty"}
 
     local node = minetest.get_node(pos)
 
-    if vent[node.name] ~= nil then
+    if list_set(vents)[node.name] ~= nil then
         return true
     end
     return false
 end
+
+local is_ducting = function(pos)
+    local junction = "ctg_airs:air_duct_junc"
+
+    local node = minetest.get_node(pos)
+
+    if node.name == junction then
+        return true
+    end
+
+    return is_duct_tube(pos) or is_duct_vent(pos)
+end
+
+local is_handler = function(pos)
+    local handlers = {"ctg_airs:lv_air_handler", "ctg_airs:lv_air_handler_active",
+                    "ctg_airs:mv_air_handler", "ctg_airs:lv_air_handler_active", 
+                    "ctg_airs:lv_air_fan", "lv_air_fan_active",
+                    "ctg_airs:mv_air_fan", "mv_air_fan_active" }
+
+    local node = minetest.get_node(pos)
+    if list_set(handlers)[node.name] ~= nil then
+        return true
+    end
+    return false
+end
+
+ctg_airs.is_duct_tube = is_duct_tube
+ctg_airs.is_duct_vent = is_duct_vent
+ctg_airs.is_ducting = is_ducting
+ctg_airs.is_handler = is_handler
 
 local function is_vacuum_node(pos)
     local node = minetest.get_node(pos)
@@ -815,6 +851,10 @@ local function process_vent2(pos, power, cost, hasPur)
     local t2_us = tonumber(meta:get_string("time_run")) or 0
     local t_lag = tonumber(meta:get_string("time_lag"))
     local elapsed_time_in_seconds = (t0_us - t2_us) / 1000000.0;
+    if elapsed_time_in_seconds > 90 or elapsed_time_in_seconds <= 0 then
+        meta:set_string("time_run", tostring(t0_us));
+        return 0, power
+    end
     if elapsed_time_in_seconds <= 1 then
         return 0, power + 1
     end
@@ -1226,25 +1266,15 @@ function ctg_airs.get_duct_output(pos, dir)
         z = pos.z
     }
 
-    local node1 = minetest.get_node(pos1)
-    local node2 = minetest.get_node(pos2)
-    if check_node_tube(pos1) then
+    if is_handler(pos1) then
         pos = pos1;
-    elseif dir == 6 and check_node_tube(pos2) then
+    elseif dir == 6 and is_ducting(pos2) then
         pos = pos2;
     end
 
-    local node = minetest.get_node(pos)
-    local dir1, dir2, num_con = ctg_airs.Tube:decode_param2(pos, node.param2)
-
     local dest_pos = ctg_airs.Tube:get_connected_node_pos(pos, dir)
 
-    -- minetest.log(tostring(dir1) .. " " .. tostring(dir2) .. " " .. tostring(num_con))
-
-    -- local loc = minetest.get_meta(pos):get_string("infotext")
-
     if (dest_pos) then
-        -- local dest_pos = minetest.string_to_pos(loc)
         local dest_node = minetest.get_node(dest_pos)
         local dest_dir1, dest_dir2, dest_num_con = ctg_airs.Tube:decode_param2(dest_pos, dest_node.param2)
 
@@ -1296,7 +1326,7 @@ ctg_airs.find_connected = function(pos)
     }}
     local nodes = {}
     for i, cur_pos in pairs(positions) do
-        local n = check_node_tube(cur_pos)
+        local n = is_duct_tube(cur_pos)
         if n ~= nil then
             table.insert(nodes, cur_pos)
         end
