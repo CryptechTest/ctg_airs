@@ -219,7 +219,7 @@ end
 
 local is_handler = function(pos)
     local handlers = {"ctg_airs:lv_air_handler", "ctg_airs:lv_air_handler_active",
-                    "ctg_airs:mv_air_handler", "ctg_airs:lv_air_handler_active", 
+                    "ctg_airs:mv_air_handler", "ctg_airs:mv_air_handler_active", 
                     "ctg_airs:lv_air_fan", "lv_air_fan_active",
                     "ctg_airs:mv_air_fan", "mv_air_fan_active" }
 
