@@ -9,7 +9,8 @@ local Tube = tubelib2.Tube:new({
     secondary_node_names = {"ctg_airs:air_duct_junc", "ctg_airs:air_duct_vent", "ctg_airs:air_duct_vent_dirty",
                             "ctg_airs:air_duct_vent_lite", "ctg_airs:air_duct_vent_lite_dirty",
                             "ctg_airs:lv_air_handler", "ctg_airs:lv_air_handler_active", "ctg_airs:lv_air_handler_wait",
-                            "ctg_airs:lv_air_fan", "ctg_airs:mv_air_handler", "ctg_airs:mv_air_handler_active",
+                            "ctg_airs:mv_air_handler", "ctg_airs:mv_air_handler_active",
+                            "ctg_airs:lv_air_handler_gen", "ctg_airs:lv_air_handler_gen_active", "ctg_airs:lv_air_handler_gen_wait",
                             "ctg_airs:mv_air_handler_wait", "ctg_airs:lv_air_fan", "ctg_airs:lv_air_fan_active",
                             "ctg_airs:mv_air_fan", "ctg_airs:mv_air_fan_active", "ctg_airs:lv_air_purifier",
                             "ctg_airs:lv_air_purifier_active", "ctg_airs:lv_air_purifier_dirty"},
@@ -29,17 +30,26 @@ local Tube = tubelib2.Tube:new({
     end
 })
 
+-- admin handler
+Tube:set_valid_sides("ctg_airs:lv_air_handler_gen", {"U"})
+Tube:set_valid_sides("ctg_airs:lv_air_handler_gen_active", {"U"})
+Tube:set_valid_sides("ctg_airs:lv_air_handler_gen_wait", {"U"})
+
+-- general handlers
 Tube:set_valid_sides("ctg_airs:lv_air_handler", {"U"})
 Tube:set_valid_sides("ctg_airs:lv_air_handler_active", {"U"})
+Tube:set_valid_sides("ctg_airs:lv_air_handler_wait", {"U"})
 Tube:set_valid_sides("ctg_airs:mv_air_handler", {"U"})
 Tube:set_valid_sides("ctg_airs:mv_air_handler_active", {"U"})
-
+Tube:set_valid_sides("ctg_airs:mv_air_handler_wait", {"U"})
 Tube:set_valid_sides("ctg_airs:lv_air_fan", {"U"})
 Tube:set_valid_sides("ctg_airs:lv_air_fan_active", {"U"})
 Tube:set_valid_sides("ctg_airs:mv_air_fan", {"U"})
 Tube:set_valid_sides("ctg_airs:mv_air_fan_active", {"U"})
 
+-- purifier
 Tube:set_valid_sides("ctg_airs:lv_air_purifier", {"L", "R"})
 Tube:set_valid_sides("ctg_airs:lv_air_purifier_active", {"L", "R"})
+Tube:set_valid_sides("ctg_airs:lv_air_purifier_dirty", {"L", "R"})
 
 ctg_airs.Tube = Tube

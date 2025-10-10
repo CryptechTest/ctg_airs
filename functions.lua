@@ -218,10 +218,11 @@ local is_ducting = function(pos)
 end
 
 local is_handler = function(pos)
-    local handlers = {"ctg_airs:lv_air_handler", "ctg_airs:lv_air_handler_active",
-                    "ctg_airs:mv_air_handler", "ctg_airs:mv_air_handler_active", 
-                    "ctg_airs:lv_air_fan", "lv_air_fan_active",
-                    "ctg_airs:mv_air_fan", "mv_air_fan_active" }
+    local handlers = { "ctg_airs:lv_air_handler", "ctg_airs:lv_air_handler_active", "ctg_airs:lv_air_handler_wait",
+                    "ctg_airs:mv_air_handler", "ctg_airs:mv_air_handler_active", "ctg_airs:mv_air_handler_wait",
+                    "ctg_airs:lv_air_handler_gen", "ctg_airs:lv_air_handler_gen_active", "ctg_airs:lv_air_handler_gen_wait",
+                    "ctg_airs:lv_air_fan", "ctg_airs:lv_air_fan_active",
+                    "ctg_airs:mv_air_fan", "ctg_airs:mv_air_fan_active" }
 
     local node = minetest.get_node(pos)
     if list_set(handlers)[node.name] ~= nil then
