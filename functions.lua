@@ -267,6 +267,8 @@ local function is_atmos_node(pos)
     return false
 end
 
+ctg_airs.is_atmos_node = is_atmos_node
+
 local function get_node_cost(pos)
     local node = minetest.get_node(pos)
     if minetest.get_item_group(node.name, "vacuum") == 1 then
