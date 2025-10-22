@@ -157,6 +157,9 @@ function ctg_airs.register_machine_fan(data)
                     end
                     -- minetest.log("power rem: " .. power)
 
+                    local n_power = air_power - power
+                    meta:set_int("air_power", n_power);
+
                     if (power ~= air_power and math.random(0, 2) > 0) or math.random(0, 1) == 0 then
                         ctg_airs.process_atmos(pos, math.random(1, 3))
                     end
