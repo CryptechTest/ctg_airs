@@ -23,6 +23,16 @@ local function update_formspec(data, meta, running, enabled)
     return ctg_airs.update_formspec(data, meta, running, enabled, 0, 0)
 end
 
+local function push_item(pos, inv, param2)
+	local taken = minecart.inv_take_items(inv, "main", 1)
+	if taken then
+		local leftover = minecart.put_items(pos, param2, taken)
+		if leftover then
+			inv:add_item("main", leftover)
+		end
+	end
+end
+
 function ctg_airs.register_machine_fan(data)
     local typename = data.typename
     local machine_name = data.machine_name

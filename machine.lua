@@ -26,6 +26,16 @@ local function fround(n, prec)
     return tostring(num)
 end
 
+local function push_item(pos, inv, param2)
+	local taken = minecart.inv_take_items(inv, "main", 1)
+	if taken then
+		local leftover = minecart.put_items(pos, param2, taken)
+		if leftover then
+			inv:add_item("main", leftover)
+		end
+	end
+end
+
 local function update_formspec(data, meta, running, enabled, size, percent)
     local machine_desc = data.machine_desc
     local typename = data.typename
