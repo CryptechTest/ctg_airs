@@ -2,7 +2,7 @@ local S = minetest.get_translator(minetest.get_current_modname())
 
 local function process_leaves(pos)
     if not pos then
-        return power
+        return 0
     end
 
     local node = minetest.get_node(pos)
