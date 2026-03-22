@@ -314,7 +314,7 @@ function ctg_airs.register_machine_fan(data)
         tiles = {ltier .. "_" .. machine_name .. "_top.png", ltier .. "_" .. machine_name .. "_bottom.png" .. mv,
                  ltier .. "_" .. machine_name .. "_side.png" .. mv, ltier .. "_" .. machine_name .. "_side.png" .. mv,
                  ltier .. "_" .. machine_name .. "_side.png" .. mv, {
-            image = ltier .. "_" .. machine_name .. "_active.png" .. mv,
+            name = ltier .. "_" .. machine_name .. "_active.png" .. mv,
             backface_culling = false,
             animation = {
                 type = "vertical_frames",

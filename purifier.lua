@@ -403,7 +403,7 @@ function ctg_airs.register_machine_purifier(data)
                  ltier .. "_" .. machine_name .. "_side.png",
                  ltier .. "_" .. machine_name .. "_side.png",
                  ltier .. "_" .. machine_name .. "_back.png" , {
-            image = ltier .. "_" .. machine_name .. "_front_active.png",
+            name = ltier .. "_" .. machine_name .. "_front_active.png",
             backface_culling = true,
             animation = {
                 type = "vertical_frames",

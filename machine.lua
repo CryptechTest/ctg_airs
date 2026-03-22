@@ -685,7 +685,7 @@ function ctg_airs.register_machine(data)
                  ltier .. "_" .. machine_name .. "_bottom.png" .. tube_entry_metal,
                  ltier .. "_" .. machine_name .. "_top.png", ltier .. "_" .. machine_name .. "_top.png",
                  ltier .. "_" .. machine_name .. "_side.png" .. tube_entry_metal, {
-            image = ltier .. "_" .. machine_name .. "_active.png",
+            name = ltier .. "_" .. machine_name .. "_active.png",
             backface_culling = false,
             animation = animation
         }},
